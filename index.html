@@ -3,34 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kopfschmerz Tracker</title>
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#4a90e2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Updated Theme Color to Forest Teal -->
+    <meta name="theme-color" content="#4A6C6F">
     <meta name="application-name" content="Kopfschmerz Tracker">
-    <meta name="apple-mobile-web-app-title" content="Tracker">
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234a90e2%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234a90e2%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
+    <!-- Updated App Icon color to match theme -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234A6C6F%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234A6C6F%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
 
+    <title>Kopfschmerz Tracker</title>
     <style>
         :root {
-            --primary: #4a90e2;
-            --bg: #f5f7fa;
-            --surface: #ffffff;
-            --text: #2d3436;
-            --danger: #ff6b6b;
-            --mild: #54a0ff;
-            --safe: #1dd1a1;
-            --gray: #dfe6e9;
+            /* Cozy Nature Palette */
+            --primary: #4A6C6F;    /* Deep Forest Lake Teal */
+            --bg: #F5F1E6;         /* Warm Oatmeal/Paper Beige */
+            --surface: #ffffff;    /* White */
+            --text: #3E3C38;       /* Warm Dark Gray/Brown */
             
-            /* Heatmap Colors */
-            --heat-low: #2ecc71;   /* Dunkelgrün - selten */
-            --heat-med: #f1c40f;   /* Gelb/Hellgrün - mittel */
-            --heat-high: #e67e22;  /* Orange/Hellrot - oft */
-            --heat-ext: #c0392b;   /* Dunkelrot - sehr oft */
+            /* Status Colors (Autumnal) */
+            --danger: #C05746;     /* Rust Red (Fire/Autumn Leaves) */
+            --mild: #7EA0A3;       /* Muted Lake Blue */
+            --safe: #8FA876;       /* Moss Green */
+            --gray: #DCD6CC;       /* Warm Gray */
+            
+            /* Heatmap Colors (Nature Gradient) */
+            --heat-low: #8FA876;   /* Moss */
+            --heat-med: #E6B867;   /* Mustard/Golden Leaves */
+            --heat-high: #D68C45;  /* Pumpkin/Dry Leaves */
+            --heat-ext: #C05746;   /* Rust Red/Fire */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -62,35 +65,6 @@
             position: relative;
         }
 
-        /* Navigation */
-        .main-nav {
-            display: flex;
-            background: white;
-            border-bottom: 1px solid #ddd;
-            height: 60px;
-            flex-shrink: 0;
-            z-index: 100;
-            padding-top: env(safe-area-inset-top);
-        }
-
-        .nav-item {
-            flex: 1;
-            padding: 8px 0;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #b2bec3;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            transition: color 0.2s;
-        }
-
-        .nav-item.active { color: var(--primary); }
-        .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
-
         /* Header */
         header {
             background: var(--primary);
@@ -121,6 +95,39 @@
             font-size: 1.2rem;
         }
 
+        /* Bottom Navigation (Fixed) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            background: var(--surface);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+            height: 60px;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #999;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
+
         /* Views */
         .view {
             display: none;
@@ -128,26 +135,27 @@
             overflow-y: auto;
             padding: 20px;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 40px;
+            padding-bottom: 90px; /* Space for Bottom Nav */
         }
         .view.active { display: block; }
 
         /* Dashboard */
         .widget-card {
-            background: white;
+            background: var(--surface);
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(74, 108, 111, 0.08); /* Colored shadow hint */
             margin-bottom: 20px;
             text-align: center;
             position: relative;
+            border: 1px solid rgba(255,255,255,0.5);
         }
         .date-display { font-size: 1.1rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
         .status-display { font-size: 1.8rem; font-weight: bold; margin: 10px 0; color: var(--text); }
         
         .streak-badge {
             position: absolute; top: 15px; right: 15px;
-            background: #fff0e6; color: #e67e22; padding: 5px 10px;
+            background: #fff8f0; color: var(--heat-high); padding: 5px 10px;
             border-radius: 20px; font-weight: bold; font-size: 0.9rem;
             display: flex; align-items: center; gap: 5px; border: 1px solid #ffe0cc;
         }
@@ -155,37 +163,38 @@
         .quick-add-btn {
             background: var(--primary); color: white; border: none; border-radius: 50px;
             padding: 15px 30px; font-size: 1.1rem; font-weight: bold;
-            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4); cursor: pointer;
+            box-shadow: 0 4px 12px rgba(74, 108, 111, 0.3); cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; margin-top: 10px; transition: transform 0.1s;
         }
         .quick-add-btn:active { transform: scale(0.98); }
         
         .today-item {
-            background: #f8f9fa; border-left: 4px solid var(--primary);
+            background: var(--surface); border-left: 4px solid var(--primary);
             padding: 12px; border-radius: 8px; margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
 
         /* Calendar */
         .calendar-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 20px 0; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-        .day-name { text-align: center; font-size: 0.8rem; color: #b2bec3; margin-bottom: 5px; }
+        .day-name { text-align: center; font-size: 0.8rem; color: #888; margin-bottom: 5px; }
         .day {
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
             border-radius: 10px; font-size: 0.9rem; background: var(--surface);
             box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;
+            color: var(--text);
         }
         .day.today { border: 2px solid var(--primary); font-weight: bold; }
         .day.pain-short { background: var(--mild); color: white; }
         .day.pain-long { background: var(--danger); color: white; }
-        .day.future { opacity: 0.3; background: #eee; }
+        .day.future { opacity: 0.4; background: rgba(0,0,0,0.05); }
 
         /* Stats */
-        .stats-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .stats-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
         .print-btn {
-            background: #2d3436; color: white; width: 100%; padding: 15px;
+            background: var(--text); color: white; width: 100%; padding: 15px;
             border-radius: 10px; border: none; font-weight: bold; margin-top: 20px;
             display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
         }
@@ -201,7 +210,7 @@
         }
         .heatmap-toggle {
             padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px;
-            font-size: 0.85rem; cursor: pointer; background: white;
+            font-size: 0.85rem; cursor: pointer; background: var(--surface); color: var(--text);
         }
         .heatmap-toggle.active {
             background: var(--primary); color: white; border-color: var(--primary);
@@ -210,13 +219,13 @@
         /* Modal */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 200;
+            background: rgba(62, 60, 56, 0.5); z-index: 200; /* Darker warm overlay */
             display: flex; align-items: flex-end;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .modal.active { opacity: 1; pointer-events: all; }
         .modal-content {
-            background: white; width: 100%; height: 95vh;
+            background: var(--bg); width: 100%; height: 95vh;
             border-radius: 20px 20px 0 0; padding: 20px;
             transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             display: flex; flex-direction: column; max-width: 600px; margin: 0 auto;
@@ -225,8 +234,8 @@
 
         /* Forms */
         .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.95rem; }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #fff; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text); font-size: 0.95rem; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: var(--surface); color: var(--text); }
         
         .required-marker { color: var(--danger); margin-left: 3px; }
 
@@ -239,13 +248,13 @@
 
         /* Collapsible Details */
         details {
-            background: #f8f9fa; border-radius: 12px; margin-bottom: 15px;
-            border: 1px solid #eee; overflow: hidden;
+            background: var(--surface); border-radius: 12px; margin-bottom: 15px;
+            border: 1px solid rgba(0,0,0,0.05); overflow: hidden;
         }
         summary {
             padding: 15px; font-weight: bold; cursor: pointer; list-style: none;
             display: flex; justify-content: space-between; align-items: center;
-            background: #fff;
+            background: var(--surface); color: var(--text);
         }
         summary::after { content: '+'; font-size: 1.2rem; font-weight: normal; color: #888; }
         details[open] summary::after { content: '-'; }
@@ -254,24 +263,24 @@
 
         /* Brain Map */
         .brain-container { display: flex; justify-content: center; margin: 10px 0; }
-        svg#brain-map { width: 160px; height: 200px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-        .brain-part { fill: #dfe6e9; stroke: white; stroke-width: 2px; transition: fill 0.2s; }
+        svg#brain-map { width: 160px; height: 200px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
+        .brain-part { fill: #dcd6cc; stroke: white; stroke-width: 2px; transition: fill 0.2s; }
         .brain-part.active { fill: var(--danger); }
 
         /* Chips */
         .chip-container { display: flex; flex-wrap: wrap; gap: 8px; }
         .type-chip {
-            padding: 8px 14px; background: #fff; border: 1px solid #ddd;
+            padding: 8px 14px; background: var(--surface); border: 1px solid #ddd;
             border-radius: 20px; font-size: 0.9rem; cursor: pointer;
             transition: all 0.2s;
         }
         .type-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .type-chip.trigger { border-color: #ff9f43; } 
-        .type-chip.trigger.active { background: #ff9f43; border-color: #ff9f43; }
+        .type-chip.trigger { border-color: var(--heat-med); } 
+        .type-chip.trigger.active { background: var(--heat-high); border-color: var(--heat-high); color: white; }
         
         .weather-options {
-            display: none; background: #fff3e0; padding: 10px; border-radius: 8px;
-            margin-top: 10px; width: 100%; border: 1px solid #ffcc80;
+            display: none; background: #fff8f0; padding: 10px; border-radius: 8px;
+            margin-top: 10px; width: 100%; border: 1px solid #e6cba8;
         }
         .weather-options.visible { display: flex; flex-wrap: wrap; gap: 8px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
@@ -299,18 +308,6 @@
 </div>
 
 <div class="app-container">
-    <div class="main-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)">
-            <span class="nav-icon">🏠</span><span>Heute</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('calendar', this)">
-            <span class="nav-icon">📅</span><span>Kalender</span>
-        </div>
-        <div class="nav-item" onclick="switchTab('stats', this)">
-            <span class="nav-icon">📊</span><span>Statistik</span>
-        </div>
-    </div>
-
     <header>
         <span>Kopfschmerz Tracker</span>
         <div class="header-controls">
@@ -335,9 +332,9 @@
     <!-- CALENDAR -->
     <div id="view-calendar" class="view">
         <div class="calendar-controls">
-            <button onclick="changeMonth(-1)" style="background:none;border:none;font-size:1.5rem;">&lt;</button>
+            <button onclick="changeMonth(-1)" style="background:none;border:none;font-size:1.5rem;color:var(--text);">&lt;</button>
             <span id="monthDisplay" style="font-weight:bold; font-size:1.1rem;"></span>
-            <button onclick="changeMonth(1)" style="background:none;border:none;font-size:1.5rem;">&gt;</button>
+            <button onclick="changeMonth(1)" style="background:none;border:none;font-size:1.5rem;color:var(--text);">&gt;</button>
         </div>
         <div class="calendar-grid" id="calendar"></div>
         <div style="text-align:center; font-size:0.8rem; color:#888; margin-top:20px;">
@@ -360,7 +357,7 @@
                 </div>
             </div>
             
-            <div style="display:flex; justify-content:space-around; margin-top:10px; background:#f9f9f9; padding:10px; border-radius:8px;">
+            <div style="display:flex; justify-content:space-around; margin-top:10px; background:var(--bg); padding:10px; border-radius:8px;">
                 <div style="text-align:center;">
                     <div id="stat-days" style="font-size:1.4rem; font-weight:bold; color:var(--primary)">0</div>
                     <div style="font-size:0.75rem; color:#888;">Schmerztage</div>
@@ -405,6 +402,19 @@
             <span>📄</span> PDF / Drucken
         </button>
     </div>
+
+    <!-- BOTTOM NAVIGATION (Moved here) -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)">
+            <span class="nav-icon">🏠</span><span>Heute</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('calendar', this)">
+            <span class="nav-icon">📅</span><span>Kalender</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('stats', this)">
+            <span class="nav-icon">📊</span><span>Statistik</span>
+        </div>
+    </div>
 </div>
 
 <!-- MODAL -->
@@ -412,10 +422,10 @@
     <div class="modal-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <div style="display:flex; align-items:center;">
-                <button id="backBtn" onclick="showListView()" style="border:none; background:none; font-size:1.5rem; margin-right:10px; display:none;">&larr;</button>
+                <button id="backBtn" onclick="showListView()" style="border:none; background:none; font-size:1.5rem; margin-right:10px; display:none; color:var(--text);">&larr;</button>
                 <h2 id="modalDateTitle" style="margin:0; font-size:1.3rem;">Datum</h2>
             </div>
-            <button onclick="closeModal()" style="border:none; background:none; font-size:1.8rem; padding:0 10px;">&times;</button>
+            <button onclick="closeModal()" style="border:none; background:none; font-size:1.8rem; padding:0 10px; color:var(--text);">&times;</button>
         </div>
 
         <div id="listContainer" style="overflow-y:auto; flex:1;">
@@ -479,7 +489,7 @@
                         <div style="flex:1;">
                             <label>Schlaf (Std)</label>
                             <div class="sleep-input-group">
-                                <input type="number" id="sleepInput" placeholder="7.5" readonly style="background:#f0f0f0; color:#555;">
+                                <input type="number" id="sleepInput" placeholder="7.5" readonly style="background:#e0ded8; color:#555;">
                                 <button class="add-nap-btn" onclick="addNap()">+</button>
                             </div>
                         </div>
@@ -495,7 +505,7 @@
                     </div>
 
                     <label>Stresslevel (1-10): <span id="stressValue">0</span></label>
-                    <input type="range" id="stressInput" min="0" max="10" value="0" oninput="document.getElementById('stressValue').innerText=this.value" style="accent-color:#ff9f43; width:100%; margin-bottom:15px;">
+                    <input type="range" id="stressInput" min="0" max="10" value="0" oninput="document.getElementById('stressValue').innerText=this.value" style="accent-color:#d98e46; width:100%; margin-bottom:15px;">
 
                     <label>Auslöser & Einflüsse</label>
                     <div class="chip-container" id="triggersContainer">
@@ -552,7 +562,7 @@
             <div style="height:80px"></div>
         </div>
 
-        <div style="position:absolute; bottom:0; left:0; width:100%; padding:20px; background:white; border-top:1px solid #eee;">
+        <div style="position:absolute; bottom:0; left:0; width:100%; padding:20px; background:var(--bg); border-top:1px solid #eee;">
             <button id="saveBtn" class="btn-save" onclick="saveEntry()">Speichern</button>
             <button id="delBtn" class="btn-delete hidden" onclick="deleteEntry()">Löschen</button>
         </div>
@@ -646,7 +656,7 @@
                     <div style="flex:1">
                         <div style="font-weight:bold;">${e.time} Uhr <span style="font-weight:normal; color:#666;">• ${e.duration||0} min</span></div>
                         <div style="font-size:0.85rem; color:#666;">${getPartsSummary(e)}</div>
-                        ${e.medName ? `<div style="font-size:0.8rem; color:#4a90e2;">💊 ${e.medName}</div>` : ''}
+                        ${e.medName ? `<div style="font-size:0.8rem; color:var(--primary);">💊 ${e.medName}</div>` : ''}
                     </div>
                     <div style="font-weight:bold; color:var(--primary); font-size:1.2rem;">${e.intensity}</div>
                 `;
@@ -772,7 +782,7 @@
         const sleepInp = document.getElementById('sleepInput');
         if(hasSleepData) {
              sleepInp.setAttribute('readonly', 'true');
-             sleepInp.style.backgroundColor = '#f0f0f0';
+             sleepInp.style.backgroundColor = '#e0ded8';
         } else {
              sleepInp.removeAttribute('readonly');
              sleepInp.style.backgroundColor = '#fff';
@@ -985,7 +995,7 @@
             const hits = partsFreq[id] || 0;
             const intensity = hits / maxHits;
             
-            let color = '#dfe6e9'; 
+            let color = '#dcd6cc'; 
             if (hits > 0) {
                 if(intensity < 0.25) color = 'var(--heat-low)';
                 else if(intensity < 0.5) color = 'var(--heat-med)';
