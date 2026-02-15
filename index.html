@@ -24,7 +24,6 @@
             --danger: #C05746;
             --mild: #7EA0A3;
             --safe: #8FA876;
-            --gray: #DCD6CC;
             
             --heat-low: #8FA876;
             --heat-med: #E6B867;
@@ -40,7 +39,7 @@
             color: var(--text);
             margin: 0;
             padding: 0;
-            height: 100dvh; /* Dynamic viewport height */
+            height: 100dvh; 
             width: 100vw;
             display: flex;
             flex-direction: column;
@@ -48,7 +47,7 @@
             overscroll-behavior-y: none;
         }
 
-        /* App Layout Container */
+        /* App Layout */
         .app-container {
             flex: 1;
             display: flex;
@@ -56,8 +55,8 @@
             overflow: hidden;
             background: var(--bg);
             width: 100%;
-            max-width: 600px; /* Limits width on tablets/desktop */
-            margin: 0 auto; /* Centers app on larger screens */
+            max-width: 600px;
+            margin: 0 auto;
             position: relative;
         }
 
@@ -66,7 +65,7 @@
             background: var(--primary);
             color: white;
             padding: 15px 20px;
-            padding-top: max(15px, env(safe-area-inset-top)); /* Notch support */
+            padding-top: max(15px, env(safe-area-inset-top));
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -76,8 +75,6 @@
             z-index: 10;
             flex-shrink: 0;
         }
-
-        .header-controls { display: flex; gap: 10px; }
 
         .header-btn {
             background: rgba(255,255,255,0.2);
@@ -92,24 +89,20 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            transition: background 0.2s;
         }
-        .header-btn:active { background: rgba(255,255,255,0.4); }
 
-        /* Main Content Views */
+        /* Views */
         .view {
             display: none;
             flex: 1;
             overflow-y: auto;
-            overflow-x: hidden;
             padding: 20px;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* Space for Nav */
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
         }
-        .view.active { display: block; animation: fadeInView 0.2s ease-out; }
-        @keyframes fadeInView { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .view.active { display: block; }
 
-        /* Dashboard Items */
+        /* Dashboard */
         .widget-card {
             background: var(--surface);
             border-radius: 20px;
@@ -143,9 +136,8 @@
             background: var(--surface); border-left: 5px solid var(--primary);
             padding: 16px; border-radius: 12px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: transform 0.1s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
-        .today-item:active { transform: scale(0.99); background: #fdfdfd; }
 
         /* Calendar */
         .calendar-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 20px 0; }
@@ -162,18 +154,29 @@
         .day.pain-long { background: var(--danger); color: white; }
         .day.future { opacity: 0.4; background: rgba(0,0,0,0.05); pointer-events: none; }
 
-        /* Stats */
+        /* Stats & Analytics */
         .stats-card { background: var(--surface); border-radius: 16px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .stats-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        .stats-table th { text-align: left; border-bottom: 2px solid #eee; padding: 8px 4px; color: #888; }
-        .stats-table td { border-bottom: 1px solid #f5f5f5; padding: 10px 4px; vertical-align: top;}
         
-        .heatmap-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .heatmap-toggle {
-            padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px;
-            font-size: 0.9rem; cursor: pointer; background: var(--surface); color: var(--text); flex: 1; text-align: center; max-width: 150px;
-        }
-        .heatmap-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .analysis-box { background: #f9f8f4; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #eee; }
+        .analysis-val { font-size: 1.4rem; font-weight: bold; color: var(--primary); display: block; }
+        .analysis-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Bar Chart (Severity) */
+        .bar-chart { display: flex; align-items: flex-end; height: 100px; gap: 10px; margin-top: 15px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
+        .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+        .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s; min-height: 2px; }
+        .bar-label { font-size: 0.7rem; color: #888; margin-top: 5px; }
+
+        /* Time of Day Chart */
+        .time-chart { display: flex; justify-content: space-between; margin-top: 10px; }
+        .time-segment { text-align: center; flex: 1; }
+        .time-icon { font-size: 1.2rem; display: block; margin-bottom: 4px; }
+        .time-val { font-weight: bold; color: var(--text); font-size: 0.9rem; }
+
+        .stats-table-screen { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .stats-table-screen th { text-align: left; border-bottom: 2px solid #eee; padding: 8px 4px; color: #888; }
+        .stats-table-screen td { border-bottom: 1px solid #f5f5f5; padding: 10px 4px; vertical-align: top;}
 
         .print-btn {
             background: var(--text); color: white; width: 100%; padding: 15px;
@@ -181,14 +184,14 @@
             display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
         }
 
-        /* BOTTOM NAVIGATION (Z-Index < Modal) */
+        /* Bottom Nav */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
             display: flex; background: var(--surface);
             border-top: 1px solid rgba(0,0,0,0.05);
             padding-bottom: env(safe-area-inset-bottom);
             height: 60px;
-            z-index: 100; /* Lower than Modal (2000) */
+            z-index: 100;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
         }
         .nav-item {
@@ -198,77 +201,57 @@
         .nav-item.active { color: var(--primary); }
         .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
 
-        /* MODAL OVERLAY (High Z-Index) */
+        /* Heatmap Controls */
+        .heatmap-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .heatmap-toggle {
+            padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px;
+            font-size: 0.9rem; cursor: pointer; background: var(--surface); color: var(--text); flex: 1; text-align: center; max-width: 150px;
+        }
+        .heatmap-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* MODAL */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(62, 60, 56, 0.6); /* Warm dark overlay */
-            backdrop-filter: blur(2px);
-            z-index: 2000; /* Higher than Nav */
-            display: flex; align-items: flex-end;
+            background: rgba(62, 60, 56, 0.6); backdrop-filter: blur(2px);
+            z-index: 2000; display: flex; align-items: flex-end;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .modal.active { opacity: 1; pointer-events: all; }
         
         .modal-content {
-            background: var(--bg); width: 100%; height: 95dvh; /* Almost full height */
+            background: var(--bg); width: 100%; height: 95dvh;
             border-top-left-radius: 24px; border-top-right-radius: 24px;
-            padding: 0; /* Padding managed by children for scroll */
-            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-            display: flex; flex-direction: column; max-width: 600px; margin: 0 auto;
-            overflow: hidden; /* Prevent double scrollbars */
+            padding: 0; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; overflow: hidden;
         }
         .modal.active .modal-content { transform: translateY(0); }
 
         .modal-header {
-            padding: 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(0,0,0,0.05); background: var(--bg);
-            flex-shrink: 0;
+            padding: 20px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05); background: var(--bg); flex-shrink: 0;
         }
 
-        /* SCROLLABLE FORM AREA */
-        .scroll-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* FOOTER FOR SAVE BUTTON (Stays at bottom of flow) */
+        .scroll-container { flex: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
         .form-footer {
-            padding: 20px;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            background: var(--bg);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            flex-shrink: 0;
+            padding: 20px; padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            background: var(--bg); border-top: 1px solid rgba(0,0,0,0.05); flex-shrink: 0;
         }
 
-        /* Form Elements - Scalable */
+        /* Form Elements */
         .form-group { margin-bottom: 24px; }
         label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text); font-size: 0.95rem; }
-        
-        /* Flex Inputs for Side-by-Side */
         .input-row { display: flex; gap: 12px; margin-bottom: 20px; }
         .input-col { flex: 1; }
-
         input, textarea, select {
             width: 100%; padding: 14px; border: 1px solid #ddd;
             border-radius: 12px; font-size: 1rem; background: var(--surface); color: var(--text);
             -webkit-appearance: none;
         }
         
-        /* Collapsible Details */
-        details {
-            background: var(--surface); border-radius: 16px; margin-bottom: 16px;
-            border: 1px solid rgba(0,0,0,0.05); overflow: hidden;
-        }
-        summary {
-            padding: 16px; font-weight: bold; cursor: pointer; list-style: none;
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--surface); color: var(--text);
-        }
+        details { background: var(--surface); border-radius: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); overflow: hidden; }
+        summary { padding: 16px; font-weight: bold; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; background: var(--surface); color: var(--text); }
         summary::after { content: '+'; font-size: 1.4rem; color: #888; font-weight: normal; }
-        details[open] summary::after { content: '−'; } /* Minus sign */
+        details[open] summary::after { content: '−'; }
         details[open] summary { border-bottom: 1px solid #eee; }
         .details-content { padding: 16px; }
 
@@ -281,52 +264,54 @@
         /* Chips */
         .chip-container { display: flex; flex-wrap: wrap; gap: 10px; }
         .type-chip {
-            flex-grow: 1; text-align: center; /* Scale chips */
-            padding: 10px 16px; background: var(--surface); border: 1px solid #ddd;
-            border-radius: 24px; font-size: 0.9rem; cursor: pointer;
-            transition: all 0.2s;
+            flex-grow: 1; text-align: center; padding: 10px 16px; background: var(--surface);
+            border: 1px solid #ddd; border-radius: 24px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
         }
         .type-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
         .type-chip.trigger { border-color: var(--heat-med); } 
         .type-chip.trigger.active { background: var(--heat-high); border-color: var(--heat-high); color: white; }
         
-        .weather-options {
-            display: none; background: #fff8f0; padding: 12px; border-radius: 12px;
-            margin-top: 12px; width: 100%; border: 1px solid #e6cba8;
-        }
+        .weather-options { display: none; background: #fff8f0; padding: 12px; border-radius: 12px; margin-top: 12px; width: 100%; border: 1px solid #e6cba8; }
         .weather-options.visible { display: flex; flex-wrap: wrap; gap: 8px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Sleep + Button */
         .sleep-input-group { display: flex; align-items: center; gap: 8px; }
-        .add-nap-btn {
-            background: var(--safe); color: white; border: none;
-            width: 48px; height: 48px; flex-shrink: 0;
-            border-radius: 12px; font-size: 1.6rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .add-nap-btn { background: var(--safe); color: white; border: none; width: 48px; height: 48px; flex-shrink: 0; border-radius: 12px; font-size: 1.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         .btn-save { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(74, 108, 111, 0.3); }
         .btn-delete { width: 100%; padding: 14px; background: transparent; color: #999; border: 1px solid #eee; border-radius: 14px; margin-top: 12px; font-size: 0.95rem; }
         .hidden { display: none !important; }
         .required-marker { color: var(--danger); margin-left: 3px; }
 
-        /* Print Styles */
-        @media print {
-            body { height: auto; overflow: visible; background: white; }
-            .app-container > *:not(#print-area) { display: none !important; }
-            #print-area { display: block !important; padding: 20px; }
-        }
+        /* PRINT STYLES - Optimized for Doctors */
         #print-area { display: none; }
+        
+        @media print {
+            body { height: auto; overflow: visible; background: white; width: 100%; display: block; }
+            .app-container, .modal { display: none !important; }
+            #print-area { display: block !important; padding: 20px; font-family: 'Helvetica', sans-serif; color: #000; }
+            
+            .print-header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+            h1 { margin: 0; font-size: 24px; }
+            h2 { font-size: 18px; margin-top: 20px; margin-bottom: 10px; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+            
+            .summary-box { display: flex; gap: 20px; margin-bottom: 20px; justify-content: space-between; background: #f9f9f9; padding: 15px; border: 1px solid #ddd; }
+            .s-item { text-align: center; }
+            .s-val { font-size: 20px; font-weight: bold; display: block; }
+            .s-lbl { font-size: 12px; text-transform: uppercase; color: #666; }
 
+            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+            th { background-color: #eee; text-align: left; padding: 6px; border-bottom: 1px solid #999; }
+            td { padding: 6px; border-bottom: 1px solid #ddd; vertical-align: top; }
+            tr:nth-child(even) { background-color: #fdfdfd; }
+        }
     </style>
 </head>
 <body>
 
-<!-- PRINT AREA -->
+<!-- PRINT AREA (For Doctor) -->
 <div id="print-area">
-    <h2>Kopfschmerz-Protokoll</h2>
-    <div id="print-content"></div>
+    <!-- Content injected via JS -->
 </div>
 
 <div class="app-container">
@@ -379,14 +364,29 @@
                 </div>
             </div>
             
-            <div style="display:flex; justify-content:space-around; margin-top:10px; background:var(--bg); padding:10px; border-radius:8px;">
-                <div style="text-align:center;">
-                    <div id="stat-days" style="font-size:1.4rem; font-weight:bold; color:var(--primary)">0</div>
-                    <div style="font-size:0.75rem; color:#888;">Schmerztage</div>
+            <!-- Quick Summary -->
+            <div class="analysis-grid">
+                <div class="analysis-box">
+                    <span class="analysis-val" id="stat-days">0</span>
+                    <span class="analysis-label">Tage mit Schmerz</span>
                 </div>
-                <div style="text-align:center;">
-                    <div id="stat-pain" style="font-size:1.4rem; font-weight:bold; color:var(--danger)">0</div>
-                    <div style="font-size:0.75rem; color:#888;">Ø Intensität</div>
+                <div class="analysis-box">
+                    <span class="analysis-val" id="stat-meds" style="color:var(--danger);">0</span>
+                    <span class="analysis-label">Tage mit Medis</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Severity & Time -->
+        <div class="stats-card">
+            <h3>Schweregrad & Zeit</h3>
+            <div class="bar-chart" id="severityChart">
+                <!-- Injected via JS -->
+            </div>
+            <div style="border-top:1px solid #eee; margin-top:15px; padding-top:15px;">
+                <h4 style="font-size:0.9rem; color:#666; margin:0 0 10px 0;">Tageszeit (Beginn)</h4>
+                <div class="time-chart" id="timeChart">
+                    <!-- Injected via JS -->
                 </div>
             </div>
         </div>
@@ -402,7 +402,6 @@
             <p style="font-size:0.8rem; color:#666; margin-bottom:10px; text-align:center;">Grün (Wenig) &rarr; Rot (Viel)</p>
             <div class="brain-container">
                 <svg id="brain-stats" viewBox="0 0 200 240" style="width:180px; height:220px;">
-                    <!-- Clone of brain map for stats -->
                     <path id="stat-frontal" class="brain-part" d="M 50,60 Q 100,20 150,60 L 150,80 Q 100,60 50,80 Z" />
                     <path id="stat-temporal-l" class="brain-part" d="M 30,80 Q 20,120 30,160 L 60,150 Q 50,110 60,80 Z" />
                     <path id="stat-temporal-r" class="brain-part" d="M 170,80 Q 180,120 170,160 L 140,150 Q 150,110 140,80 Z" />
@@ -416,12 +415,12 @@
         </div>
 
         <div class="stats-card">
-            <h3>Zusammenfassung für den Arzt</h3>
+            <h3>Liste</h3>
             <div id="statsTableContainer" style="overflow-x:auto;"></div>
         </div>
 
         <button class="print-btn" onclick="printReport()">
-            <span>📄</span> PDF / Drucken
+            <span>📄</span> PDF / Arzt-Bericht
         </button>
     </div>
 
@@ -439,10 +438,9 @@
     </div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL (Code unchanged for functionality, style included above) -->
 <div class="modal" id="entryModal">
     <div class="modal-content">
-        <!-- Modal Header -->
         <div class="modal-header">
             <div style="display:flex; align-items:center;">
                 <button id="backBtn" onclick="showListView()" style="border:none; background:none; font-size:1.5rem; margin-right:10px; display:none; color:var(--text);">&larr;</button>
@@ -451,18 +449,13 @@
             <button onclick="closeModal()" style="border:none; background:none; font-size:2rem; padding:0 10px; color:var(--text); line-height:1;">&times;</button>
         </div>
 
-        <!-- List View -->
         <div id="listContainer" class="scroll-container" style="display:none;">
             <div id="entriesList"></div>
             <button class="quick-add-btn" onclick="showFormView(true)" style="background:var(--surface); color:var(--primary); border:2px dashed #ccc; box-shadow:none;">+ Weiterer Eintrag</button>
         </div>
 
-        <!-- Form View Container (Flex) -->
         <div id="formContainer" style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
-            
-            <!-- Scrollable Content -->
             <div class="scroll-container">
-                <!-- SECTION 1: BASIS -->
                 <details open>
                     <summary>Schmerz Details <span class="required-marker">*</span></summary>
                     <div class="details-content">
@@ -476,7 +469,6 @@
                                 <input type="number" id="durationInput" placeholder="Pflichtfeld">
                             </div>
                         </div>
-                        
                         <label>Bereich auswählen <span class="required-marker">*</span></label>
                         <div class="brain-container">
                             <svg id="brain-map" viewBox="0 0 200 240">
@@ -491,10 +483,8 @@
                             </svg>
                         </div>
                         <div id="selected-parts-text" style="text-align:center; color:#888; margin-bottom:15px; font-size:0.9rem;">Kein Bereich</div>
-
                         <label>Intensität: <span id="painValue" style="color:var(--primary)">0</span></label>
                         <input type="range" id="painSlider" min="0" max="10" value="0" oninput="document.getElementById('painValue').innerText=this.value" style="accent-color:var(--primary); width:100%;">
-                        
                         <label style="margin-top:15px;">Symptome / Art</label>
                         <div class="chip-container">
                             <div class="type-chip" onclick="toggleChip(this)">Pulsierend</div>
@@ -507,8 +497,6 @@
                         </div>
                     </div>
                 </details>
-
-                <!-- SECTION 2: FAKTOREN & URSACHEN -->
                 <details>
                     <summary>Faktoren & Auslöser</summary>
                     <div class="details-content">
@@ -530,10 +518,8 @@
                                 </select>
                             </div>
                         </div>
-
                         <label>Stresslevel (1-10): <span id="stressValue">0</span></label>
                         <input type="range" id="stressInput" min="0" max="10" value="0" oninput="document.getElementById('stressValue').innerText=this.value" style="accent-color:#d98e46; width:100%; margin-bottom:15px;">
-
                         <label>Auslöser & Einflüsse</label>
                         <div class="chip-container" id="triggersContainer">
                             <div class="type-chip trigger" onclick="toggleWeatherOptions(this)">Wetter/Barometer</div>
@@ -546,8 +532,6 @@
                             <div class="type-chip trigger" onclick="toggleChip(this)">Sport/Aktivität</div>
                             <div class="type-chip trigger" onclick="toggleChip(this)">Bildschirmarbeit</div>
                         </div>
-
-                        <!-- Hidden Weather Options -->
                         <div id="weatherOptions" class="weather-options">
                             <div class="type-chip trigger" onclick="toggleChip(this)">Sturm</div>
                             <div class="type-chip trigger" onclick="toggleChip(this)">Hitze</div>
@@ -556,17 +540,13 @@
                             <div class="type-chip trigger" onclick="toggleChip(this)">Schwül</div>
                             <div class="type-chip trigger" onclick="toggleChip(this)">Regen</div>
                         </div>
-
                     </div>
                 </details>
-
-                <!-- SECTION 3: MEDIKAMENTE -->
                 <details>
                     <summary>Behandlung</summary>
                     <div class="details-content">
                         <label>Medikament & Dosis</label>
                         <input type="text" id="medNameInput" placeholder="z.B. Ibuprofen 400mg" style="margin-bottom:12px;">
-                        
                         <label>Wirkung</label>
                         <select id="medEffectInput" style="margin-bottom:12px;">
                             <option value="">-</option>
@@ -574,20 +554,15 @@
                             <option value="Mittel">Teilweise Linderung</option>
                             <option value="Gut">Schmerzfrei</option>
                         </select>
-
                         <label>Nebenwirkungen</label>
                         <input type="text" id="medSideEffectInput" placeholder="z.B. Magenweh, Müdigkeit">
                     </div>
                 </details>
-
-                <!-- SECTION 4: NOTIZEN -->
                 <div class="form-group">
                     <label>Notizen / Was hat geholfen?</label>
                     <textarea id="notesInput" placeholder="Dunkles Zimmer, Kühlen, Besonderheiten..." style="height:80px;"></textarea>
                 </div>
             </div>
-
-            <!-- FIXED FOOTER -->
             <div class="form-footer">
                 <button id="saveBtn" class="btn-save" onclick="saveEntry()">Speichern</button>
                 <button id="delBtn" class="btn-delete hidden" onclick="deleteEntry()">Löschen</button>
@@ -599,9 +574,9 @@
 <script>
     const STORAGE_KEY = 'headache_tracker_v3';
     let entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    let heatmapMode = 'intensity'; // 'intensity' or 'duration'
+    let heatmapMode = 'intensity';
     
-    // Migration helper
+    // Migration
     for (let k in entries) {
         if (!Array.isArray(entries[k])) {
             let old = entries[k]; old.id = Math.random().toString();
@@ -613,12 +588,11 @@
     let selectedDateKey = null;
     let currentEntryId = null;
 
-    // Stat Date Ranges (Default: last 30 days)
     const todayStr = new Date().toISOString().split('T')[0];
     const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate()-30);
     const thirtyStr = thirtyDaysAgo.toISOString().split('T')[0];
 
-    // --- NAVIGATION ---
+    // Navigation & Logic
     function switchTab(viewId, navEl) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById('view-'+viewId).classList.add('active');
@@ -634,13 +608,12 @@
         }
     }
 
-    // --- HOME ---
+    // HOME
     function renderHome() {
         const today = new Date();
         const dateKey = formatDate(today);
         document.getElementById('dashDate').innerText = today.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long' });
 
-        // Calculate Streak
         const dateKeys = Object.keys(entries).sort();
         let streak = 0;
         if(dateKeys.length > 0) {
@@ -693,11 +666,10 @@
     
     function openTodayModal() { openModal(formatDate(new Date())); }
 
-    // --- CALENDAR ---
+    // CALENDAR
     function renderCalendar() {
         const y = currentDate.getFullYear(), m = currentDate.getMonth();
         document.getElementById('monthDisplay').innerText = new Date(y, m).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-        
         const firstDay = new Date(y, m, 1).getDay(); 
         const startOffset = (firstDay === 0 ? 6 : firstDay - 1); 
         const daysInMonth = new Date(y, m+1, 0).getDate();
@@ -727,231 +699,9 @@
     }
     function changeMonth(d) { currentDate.setMonth(currentDate.getMonth() + d); renderCalendar(); }
 
-    // --- MODAL & FORM ---
-    function openModal(dateKey) {
-        selectedDateKey = dateKey;
-        const [y, m, d] = dateKey.split('-');
-        document.getElementById('modalDateTitle').innerText = `${d}.${m}.${y}`;
-        
-        const dayData = entries[dateKey] || [];
-        if(dayData.length > 0) showListView();
-        else showFormView(true);
-        document.getElementById('entryModal').classList.add('active');
-    }
+    // STATS & ANALYSIS
+    let printDataCache = {};
 
-    function closeModal() {
-        document.getElementById('entryModal').classList.remove('active');
-        renderHome();
-        if(document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
-    }
-
-    function showListView() {
-        document.getElementById('listContainer').style.display = 'block';
-        document.getElementById('formContainer').style.display = 'none';
-        document.getElementById('backBtn').style.display = 'none';
-
-        const list = document.getElementById('entriesList');
-        list.innerHTML = '';
-        const dayData = entries[selectedDateKey] || [];
-        dayData.sort((a,b) => (a.time||"").localeCompare(b.time||""));
-
-        dayData.forEach(e => {
-            const item = document.createElement('div');
-            item.className = 'today-item';
-            item.innerHTML = `
-                <div style="flex:1">
-                    <strong>${e.time || '--:--'}</strong> (${e.duration||0} min)
-                    <div style="font-size:0.85rem; color:#666;">${getPartsSummary(e)}</div>
-                </div>
-                <div style="font-weight:bold; color:var(--primary);">${e.intensity}</div>
-            `;
-            item.onclick = () => showFormView(false, e.id);
-            list.appendChild(item);
-        });
-    }
-
-    function showFormView(isNew, id=null) {
-        document.getElementById('listContainer').style.display = 'none';
-        document.getElementById('formContainer').style.display = 'flex'; // Changed to flex for sticky footer
-        document.getElementById('backBtn').style.display = (entries[selectedDateKey]?.length > 0) ? 'block' : 'none';
-
-        resetForm();
-
-        const dayEntries = entries[selectedDateKey] || [];
-        const existingSleepEntry = dayEntries.find(e => e.sleepHours > 0);
-        const hasSleepData = !!existingSleepEntry;
-        
-        if(isNew) {
-            currentEntryId = null;
-            const now = new Date();
-            document.getElementById('timeInput').value = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-            document.getElementById('delBtn').classList.add('hidden');
-            
-            if(hasSleepData) {
-                document.getElementById('sleepInput').value = existingSleepEntry.sleepHours;
-                document.getElementById('sleepQualityInput').value = existingSleepEntry.sleepQuality;
-            }
-        } else {
-            currentEntryId = id;
-            const entry = entries[selectedDateKey].find(e => e.id === id);
-            if(entry) loadEntry(entry);
-            document.getElementById('delBtn').classList.remove('hidden');
-        }
-
-        const sleepInp = document.getElementById('sleepInput');
-        if(hasSleepData) {
-             sleepInp.setAttribute('readonly', 'true');
-             sleepInp.style.backgroundColor = '#e0ded8';
-        } else {
-             sleepInp.removeAttribute('readonly');
-             sleepInp.style.backgroundColor = '#fff';
-        }
-    }
-
-    function resetForm() {
-        document.querySelectorAll('.brain-part').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
-        document.getElementById('selected-parts-text').innerText = 'Kein Bereich';
-        document.getElementById('painSlider').value = 0;
-        document.getElementById('painValue').innerText = '0';
-        document.getElementById('durationInput').value = '';
-        document.getElementById('notesInput').value = '';
-        document.getElementById('sleepInput').value = 0;
-        document.getElementById('sleepQualityInput').value = '';
-        document.getElementById('stressInput').value = 0;
-        document.getElementById('stressValue').innerText = '0';
-        document.getElementById('medNameInput').value = '';
-        document.getElementById('medEffectInput').value = '';
-        document.getElementById('medSideEffectInput').value = '';
-        document.getElementById('weatherOptions').classList.remove('visible');
-        
-        document.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
-        document.querySelector('details').setAttribute('open', ''); 
-    }
-
-    function loadEntry(e) {
-        if(e.parts) e.parts.forEach(id => document.getElementById(id)?.classList.add('active'));
-        updateBrainText();
-        document.getElementById('painSlider').value = e.intensity;
-        document.getElementById('painValue').innerText = e.intensity;
-        document.getElementById('durationInput').value = e.duration;
-        document.getElementById('notesInput').value = e.notes;
-        document.getElementById('timeInput').value = e.time;
-        
-        const allChips = document.querySelectorAll('.type-chip');
-        const activeChips = [...(e.types||[]), ...(e.triggers||[])];
-        allChips.forEach(c => {
-            if(activeChips.includes(c.innerText)) c.classList.add('active');
-            if(c.innerText === 'Wetter/Barometer' && activeChips.includes('Wetter/Barometer')) {
-                 document.getElementById('weatherOptions').classList.add('visible');
-            }
-        });
-
-        document.getElementById('sleepInput').value = e.sleepHours || 0;
-        document.getElementById('sleepQualityInput').value = e.sleepQuality || '';
-        document.getElementById('stressInput').value = e.stress || 0;
-        document.getElementById('stressValue').innerText = e.stress || 0;
-        document.getElementById('medNameInput').value = e.medName || '';
-        document.getElementById('medEffectInput').value = e.medEffect || '';
-        document.getElementById('medSideEffectInput').value = e.medSideEffect || '';
-    }
-
-    document.querySelectorAll('.brain-part').forEach(p => p.onclick = function() {
-        this.classList.toggle('active'); updateBrainText();
-    });
-    function updateBrainText() {
-        const active = document.querySelectorAll('.brain-part.active');
-        const txt = active.length ? Array.from(active).map(a=>a.dataset.name).join(', ') : 'Kein Bereich';
-        document.getElementById('selected-parts-text').innerText = txt;
-    }
-    
-    function toggleChip(el) { el.classList.toggle('active'); }
-    
-    function toggleWeatherOptions(el) {
-        toggleChip(el);
-        const opts = document.getElementById('weatherOptions');
-        if(el.classList.contains('active')) opts.classList.add('visible');
-        else {
-            opts.classList.remove('visible');
-            opts.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
-        }
-    }
-
-    function addNap() {
-        let val = parseFloat(document.getElementById('sleepInput').value) || 0;
-        let add = prompt("Wie viel Mittagsschlaf (in Minuten)?", "30");
-        if(add) {
-            val += (parseInt(add) / 60);
-            document.getElementById('sleepInput').value = parseFloat(val.toFixed(1));
-        }
-    }
-
-    function getPartsSummary(e) {
-        if(!e.parts || !e.parts.length) return "Keine Lokalisierung";
-        return e.parts.length > 2 ? e.parts.length + " Bereiche" : e.parts.map(id => document.getElementById(id)?.dataset.name).join(', ');
-    }
-
-    function saveEntry() {
-        const duration = document.getElementById('durationInput').value;
-        const parts = Array.from(document.querySelectorAll('.brain-part.active')).map(e=>e.id);
-        
-        if(!duration || duration <= 0) { alert("Bitte gib eine Dauer an!"); return; }
-        if(parts.length === 0) { alert("Bitte wähle mindestens einen Schmerzbereich am Kopf aus!"); return; }
-
-        const types = [];
-        const triggers = [];
-        document.querySelectorAll('.type-chip.active').forEach(c => {
-            if(c.parentElement.id === 'weatherOptions' || c.classList.contains('trigger')) triggers.push(c.innerText);
-            else types.push(c.innerText);
-        });
-
-        const data = {
-            id: currentEntryId || Math.random().toString(),
-            parts: parts,
-            intensity: document.getElementById('painSlider').value,
-            duration: duration,
-            time: document.getElementById('timeInput').value,
-            notes: document.getElementById('notesInput').value,
-            types: types,
-            triggers: triggers,
-            sleepHours: document.getElementById('sleepInput').value,
-            sleepQuality: document.getElementById('sleepQualityInput').value,
-            stress: document.getElementById('stressInput').value,
-            medName: document.getElementById('medNameInput').value,
-            medEffect: document.getElementById('medEffectInput').value,
-            medSideEffect: document.getElementById('medSideEffectInput').value
-        };
-
-        if(!entries[selectedDateKey]) entries[selectedDateKey] = [];
-        
-        if(currentEntryId) {
-            const idx = entries[selectedDateKey].findIndex(e => e.id === currentEntryId);
-            if(idx !== -1) entries[selectedDateKey][idx] = data;
-        } else {
-            entries[selectedDateKey].push(data);
-        }
-
-        entries[selectedDateKey].forEach(e => {
-            e.sleepHours = data.sleepHours;
-            e.sleepQuality = data.sleepQuality;
-        });
-
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-        if(entries[selectedDateKey].length > 1) showListView(); else closeModal();
-    }
-
-    function deleteEntry() {
-        if(confirm("Eintrag löschen?")) {
-            entries[selectedDateKey] = entries[selectedDateKey].filter(e => e.id !== currentEntryId);
-            if(entries[selectedDateKey].length === 0) delete entries[selectedDateKey];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-            if(entries[selectedDateKey]) showListView(); else closeModal();
-        }
-    }
-
-    function formatDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-
-    // --- STATS & HEATMAP ---
     function setHeatmapMode(mode) {
         heatmapMode = mode;
         document.getElementById('btn-hm-int').classList.toggle('active', mode === 'intensity');
@@ -967,23 +717,43 @@
         let totalDays = 0;
         let painSum = 0;
         let painCount = 0;
+        let medDays = 0;
         let partsFreq = {};
-        
+        let severityCounts = { mild:0, mod:0, severe:0 }; // 1-3, 4-7, 8-10
+        let timeCounts = { morn:0, day:0, eve:0, night:0 }; // 6-12, 12-18, 18-22, 22-6
         let tableData = [];
 
         Object.keys(entries).forEach(dateStr => {
             const d = new Date(dateStr);
             if(d >= start && d <= end) {
                 const dayE = entries[dateStr];
-                if(dayE.length > 0) totalDays++;
+                if(dayE.length > 0) {
+                    totalDays++;
+                    // Check meds for this day
+                    if(dayE.some(e => e.medName && e.medName.length > 0)) medDays++;
+                }
                 
                 dayE.forEach(e => {
-                    painSum += parseInt(e.intensity);
+                    const pain = parseInt(e.intensity);
+                    painSum += pain;
                     painCount++;
                     
+                    // Severity
+                    if(pain <= 3) severityCounts.mild++;
+                    else if(pain <= 7) severityCounts.mod++;
+                    else severityCounts.severe++;
+
+                    // Time
+                    const hour = parseInt(e.time.split(':')[0]);
+                    if(hour >= 6 && hour < 12) timeCounts.morn++;
+                    else if(hour >= 12 && hour < 18) timeCounts.day++;
+                    else if(hour >= 18 && hour < 22) timeCounts.eve++;
+                    else timeCounts.night++;
+
+                    // Heatmap
                     e.parts.forEach(pid => {
                         let weight = 1;
-                        if(heatmapMode === 'intensity') weight = parseInt(e.intensity) || 1;
+                        if(heatmapMode === 'intensity') weight = pain || 1;
                         else if(heatmapMode === 'duration') weight = parseInt(e.duration) || 10;
                         partsFreq[pid] = (partsFreq[pid] || 0) + weight;
                     });
@@ -995,21 +765,42 @@
                         intensity: e.intensity,
                         locations: getPartsSummary(e),
                         types: e.types.join(', '),
-                        meds: e.medName
+                        meds: e.medName,
+                        effect: e.medEffect,
+                        triggers: [...(e.triggers||[]), ...(e.stress > 0 ? [`Stress ${e.stress}`] : [])].join(', '),
+                        notes: e.notes
                     });
                 });
             }
         });
 
+        // Update Summary Cards
         document.getElementById('stat-days').innerText = totalDays;
-        document.getElementById('stat-pain').innerText = painCount ? (painSum / painCount).toFixed(1) : 0;
+        document.getElementById('stat-meds').innerText = medDays;
+        document.getElementById('stat-meds').style.color = medDays > 10 ? 'var(--danger)' : 'var(--primary)';
 
+        // Draw Severity Chart
+        const maxSev = Math.max(severityCounts.mild, severityCounts.mod, severityCounts.severe, 1);
+        document.getElementById('severityChart').innerHTML = `
+            <div class="bar-col"><div class="bar" style="height:${(severityCounts.mild/maxSev)*100}%; background:var(--safe)"></div><span class="bar-label">Leicht</span></div>
+            <div class="bar-col"><div class="bar" style="height:${(severityCounts.mod/maxSev)*100}%; background:var(--heat-med)"></div><span class="bar-label">Mittel</span></div>
+            <div class="bar-col"><div class="bar" style="height:${(severityCounts.severe/maxSev)*100}%; background:var(--danger)"></div><span class="bar-label">Stark</span></div>
+        `;
+
+        // Draw Time Chart
+        document.getElementById('timeChart').innerHTML = `
+            <div class="time-segment"><span class="time-icon">🌅</span><span class="time-val">${timeCounts.morn}</span></div>
+            <div class="time-segment"><span class="time-icon">☀️</span><span class="time-val">${timeCounts.day}</span></div>
+            <div class="time-segment"><span class="time-icon">🌇</span><span class="time-val">${timeCounts.eve}</span></div>
+            <div class="time-segment"><span class="time-icon">🌙</span><span class="time-val">${timeCounts.night}</span></div>
+        `;
+
+        // Heatmap
         const maxHits = Math.max(...Object.values(partsFreq), 1);
         document.querySelectorAll('#brain-stats .brain-part').forEach(p => {
             const id = p.id.replace('stat-', '');
             const hits = partsFreq[id] || 0;
             const intensity = hits / maxHits;
-            
             let color = '#dcd6cc'; 
             if (hits > 0) {
                 if(intensity < 0.25) color = 'var(--heat-low)';
@@ -1020,54 +811,194 @@
             p.style.fill = color;
         });
 
-        let tableHTML = `
-            <table class="stats-table">
-                <tr>
-                    <th>Datum</th>
-                    <th>Dauer</th>
-                    <th>Stärke</th>
-                    <th>Details</th>
-                </tr>
-        `;
+        // Screen Table
+        let tableHTML = `<table class="stats-table-screen"><tr><th>Datum</th><th>Dauer</th><th>Int.</th><th>Details</th></tr>`;
         tableData.sort((a,b) => new Date(b.date) - new Date(a.date));
-        
-        if(tableData.length === 0) {
-            tableHTML += `<tr><td colspan="4" style="text-align:center; padding:10px;">Keine Daten</td></tr>`;
-        } else {
+        if(tableData.length === 0) tableHTML += `<tr><td colspan="4" style="text-align:center; padding:10px;">Keine Daten</td></tr>`;
+        else {
             tableData.forEach(d => {
                 const [y,m,day] = d.date.split('-');
-                tableHTML += `
-                    <tr>
-                        <td>${day}.${m}.<br><span style="font-size:0.8em;color:#888">${d.time}</span></td>
-                        <td>${d.duration}m</td>
-                        <td><strong style="color:${d.intensity>5?'var(--danger)':'var(--mild)'}">${d.intensity}</strong></td>
-                        <td>${d.locations}<br><span style="font-size:0.8em;color:#666">${d.types}</span></td>
-                    </tr>
-                `;
+                tableHTML += `<tr><td>${day}.${m}.<br><span style="color:#888">${d.time}</span></td><td>${d.duration}m</td><td><strong style="color:${d.intensity>5?'var(--danger)':'var(--mild)'}">${d.intensity}</strong></td><td>${d.locations}<br><span style="color:#666">${d.meds ? '💊 '+d.meds : ''}</span></td></tr>`;
             });
         }
         tableHTML += `</table>`;
         document.getElementById('statsTableContainer').innerHTML = tableHTML;
-    }
 
-    function printReport() { window.print(); }
-
-    function exportData() {
-        const b = new Blob([JSON.stringify(entries, null, 2)], {type:'text/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(b);
-        a.download = 'kopfschmerz_backup.json'; a.click();
-    }
-    function importData(inp) {
-        const r = new FileReader();
-        r.onload = e => {
-            if(confirm("Daten überschreiben?")) {
-                entries = JSON.parse(e.target.result);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-                location.reload();
-            }
+        // Cache Data for Print
+        printDataCache = {
+            start, end, totalDays, medDays, painCount, painSum, tableData
         };
-        r.readAsText(inp.files[0]);
     }
+
+    function printReport() { 
+        renderStats(); // Ensure up to date
+        const d = printDataCache;
+        const avgPain = d.painCount ? (d.painSum / d.painCount).toFixed(1) : 0;
+        
+        let html = `
+            <div class="print-header">
+                <h1>Kopfschmerz-Protokoll</h1>
+                <p>Zeitraum: ${d.start.toLocaleDateString()} - ${d.end.toLocaleDateString()}</p>
+            </div>
+            
+            <div class="summary-box">
+                <div class="s-item"><span class="s-val">${d.totalDays}</span><span class="s-lbl">Schmerztage</span></div>
+                <div class="s-item"><span class="s-val">${d.medDays}</span><span class="s-lbl">Tage m. Medis</span></div>
+                <div class="s-item"><span class="s-val">${avgPain}</span><span class="s-lbl">Ø Intensität</span></div>
+                <div class="s-item"><span class="s-val">${d.painCount}</span><span class="s-lbl">Attacken Ges.</span></div>
+            </div>
+
+            <h2>Detaillierte Liste</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:12%">Datum/Zeit</th>
+                        <th style="width:8%">Dauer</th>
+                        <th style="width:5%">Int.</th>
+                        <th style="width:20%">Art & Ort</th>
+                        <th style="width:20%">Medikation</th>
+                        <th style="width:20%">Faktoren</th>
+                        <th style="width:15%">Notizen</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        if (d.tableData.length === 0) html += `<tr><td colspan="7" style="text-align:center; padding:20px;">Keine Einträge vorhanden.</td></tr>`;
+        else {
+            d.tableData.forEach(row => {
+                const [y,m,day] = row.date.split('-');
+                html += `
+                    <tr>
+                        <td>${day}.${m}.${y}<br>${row.time}</td>
+                        <td>${row.duration} m</td>
+                        <td>${row.intensity}</td>
+                        <td>${row.locations}<br><i>${row.types}</i></td>
+                        <td>${row.meds || '-'}<br>${row.effect ? '<i>('+row.effect+')</i>' : ''}</td>
+                        <td>${row.triggers}</td>
+                        <td>${row.notes || '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+        html += `</tbody></table>`;
+        
+        document.getElementById('print-area').innerHTML = html;
+        window.print(); 
+    }
+
+    // Modal & Standard Logic (Same as before)
+    function openModal(dateKey) {
+        selectedDateKey = dateKey;
+        const [y, m, d] = dateKey.split('-');
+        document.getElementById('modalDateTitle').innerText = `${d}.${m}.${y}`;
+        const dayData = entries[dateKey] || [];
+        if(dayData.length > 0) showListView(); else showFormView(true);
+        document.getElementById('entryModal').classList.add('active');
+    }
+    function closeModal() {
+        document.getElementById('entryModal').classList.remove('active');
+        renderHome();
+        if(document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
+    }
+    function showListView() {
+        document.getElementById('listContainer').style.display = 'block';
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('backBtn').style.display = 'none';
+        const list = document.getElementById('entriesList');
+        list.innerHTML = '';
+        const dayData = entries[selectedDateKey] || [];
+        dayData.sort((a,b) => (a.time||"").localeCompare(b.time||""));
+        dayData.forEach(e => {
+            const item = document.createElement('div');
+            item.className = 'today-item';
+            item.innerHTML = `
+                <div style="flex:1"><strong>${e.time}</strong> (${e.duration} min)<div style="font-size:0.85rem; color:#666;">${getPartsSummary(e)}</div></div>
+                <div style="font-weight:bold; color:var(--primary);">${e.intensity}</div>
+            `;
+            item.onclick = () => showFormView(false, e.id);
+            list.appendChild(item);
+        });
+    }
+    function showFormView(isNew, id=null) {
+        document.getElementById('listContainer').style.display = 'none';
+        document.getElementById('formContainer').style.display = 'flex';
+        document.getElementById('backBtn').style.display = (entries[selectedDateKey]?.length > 0) ? 'block' : 'none';
+        resetForm();
+        const dayEntries = entries[selectedDateKey] || [];
+        const existingSleepEntry = dayEntries.find(e => e.sleepHours > 0);
+        if(isNew) {
+            currentEntryId = null;
+            const now = new Date();
+            document.getElementById('timeInput').value = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+            document.getElementById('delBtn').classList.add('hidden');
+            if(existingSleepEntry) {
+                document.getElementById('sleepInput').value = existingSleepEntry.sleepHours;
+                document.getElementById('sleepQualityInput').value = existingSleepEntry.sleepQuality;
+            }
+        } else {
+            currentEntryId = id;
+            const entry = entries[selectedDateKey].find(e => e.id === id);
+            if(entry) loadEntry(entry);
+            document.getElementById('delBtn').classList.remove('hidden');
+        }
+        const sleepInp = document.getElementById('sleepInput');
+        if(existingSleepEntry) { sleepInp.setAttribute('readonly', 'true'); sleepInp.style.backgroundColor = '#e0ded8'; }
+        else { sleepInp.removeAttribute('readonly'); sleepInp.style.backgroundColor = '#fff'; }
+    }
+    function resetForm() {
+        document.querySelectorAll('.brain-part').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+        document.getElementById('selected-parts-text').innerText = 'Kein Bereich';
+        document.getElementById('painSlider').value = 0; document.getElementById('painValue').innerText = '0';
+        document.getElementById('durationInput').value = ''; document.getElementById('notesInput').value = '';
+        document.getElementById('sleepInput').value = 0; document.getElementById('sleepQualityInput').value = '';
+        document.getElementById('stressInput').value = 0; document.getElementById('stressValue').innerText = '0';
+        document.getElementById('medNameInput').value = ''; document.getElementById('medEffectInput').value = ''; document.getElementById('medSideEffectInput').value = '';
+        document.getElementById('weatherOptions').classList.remove('visible');
+        document.querySelectorAll('details').forEach(d => d.removeAttribute('open')); document.querySelector('details').setAttribute('open', '');
+    }
+    function loadEntry(e) {
+        if(e.parts) e.parts.forEach(id => document.getElementById(id)?.classList.add('active'));
+        updateBrainText();
+        document.getElementById('painSlider').value = e.intensity; document.getElementById('painValue').innerText = e.intensity;
+        document.getElementById('durationInput').value = e.duration; document.getElementById('notesInput').value = e.notes; document.getElementById('timeInput').value = e.time;
+        const allChips = document.querySelectorAll('.type-chip');
+        const activeChips = [...(e.types||[]), ...(e.triggers||[])];
+        allChips.forEach(c => {
+            if(activeChips.includes(c.innerText)) c.classList.add('active');
+            if(c.innerText === 'Wetter/Barometer' && activeChips.includes('Wetter/Barometer')) document.getElementById('weatherOptions').classList.add('visible');
+        });
+        document.getElementById('sleepInput').value = e.sleepHours || 0; document.getElementById('sleepQualityInput').value = e.sleepQuality || '';
+        document.getElementById('stressInput').value = e.stress || 0; document.getElementById('stressValue').innerText = e.stress || 0;
+        document.getElementById('medNameInput').value = e.medName || ''; document.getElementById('medEffectInput').value = e.medEffect || ''; document.getElementById('medSideEffectInput').value = e.medSideEffect || '';
+    }
+    document.querySelectorAll('.brain-part').forEach(p => p.onclick = function() { this.classList.toggle('active'); updateBrainText(); });
+    function updateBrainText() { const active = document.querySelectorAll('.brain-part.active'); const txt = active.length ? Array.from(active).map(a=>a.dataset.name).join(', ') : 'Kein Bereich'; document.getElementById('selected-parts-text').innerText = txt; }
+    function toggleChip(el) { el.classList.toggle('active'); }
+    function toggleWeatherOptions(el) { toggleChip(el); const opts = document.getElementById('weatherOptions'); if(el.classList.contains('active')) opts.classList.add('visible'); else { opts.classList.remove('visible'); opts.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active')); } }
+    function addNap() { let val = parseFloat(document.getElementById('sleepInput').value) || 0; let add = prompt("Wie viel Mittagsschlaf (in Minuten)?", "30"); if(add) { val += (parseInt(add) / 60); document.getElementById('sleepInput').value = parseFloat(val.toFixed(1)); } }
+    function getPartsSummary(e) { if(!e.parts || !e.parts.length) return "Keine Lokalisierung"; return e.parts.length > 2 ? e.parts.length + " Bereiche" : e.parts.map(id => document.getElementById(id)?.dataset.name).join(', '); }
+    function saveEntry() {
+        const duration = document.getElementById('durationInput').value; const parts = Array.from(document.querySelectorAll('.brain-part.active')).map(e=>e.id);
+        if(!duration || duration <= 0) { alert("Bitte gib eine Dauer an!"); return; } if(parts.length === 0) { alert("Bitte wähle mindestens einen Schmerzbereich am Kopf aus!"); return; }
+        const types = []; const triggers = [];
+        document.querySelectorAll('.type-chip.active').forEach(c => { if(c.parentElement.id === 'weatherOptions' || c.classList.contains('trigger')) triggers.push(c.innerText); else types.push(c.innerText); });
+        const data = {
+            id: currentEntryId || Math.random().toString(), parts: parts, intensity: document.getElementById('painSlider').value,
+            duration: duration, time: document.getElementById('timeInput').value, notes: document.getElementById('notesInput').value,
+            types: types, triggers: triggers, sleepHours: document.getElementById('sleepInput').value, sleepQuality: document.getElementById('sleepQualityInput').value,
+            stress: document.getElementById('stressInput').value, medName: document.getElementById('medNameInput').value, medEffect: document.getElementById('medEffectInput').value, medSideEffect: document.getElementById('medSideEffectInput').value
+        };
+        if(!entries[selectedDateKey]) entries[selectedDateKey] = [];
+        if(currentEntryId) { const idx = entries[selectedDateKey].findIndex(e => e.id === currentEntryId); if(idx !== -1) entries[selectedDateKey][idx] = data; } else { entries[selectedDateKey].push(data); }
+        entries[selectedDateKey].forEach(e => { e.sleepHours = data.sleepHours; e.sleepQuality = data.sleepQuality; });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); if(entries[selectedDateKey].length > 1) showListView(); else closeModal();
+    }
+    function deleteEntry() { if(confirm("Löschen?")) { entries[selectedDateKey] = entries[selectedDateKey].filter(e => e.id !== currentEntryId); if(entries[selectedDateKey].length === 0) delete entries[selectedDateKey]; localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); if(entries[selectedDateKey]) showListView(); else closeModal(); } }
+    function formatDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function exportData() { const b = new Blob([JSON.stringify(entries, null, 2)], {type:'text/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'kopfschmerz_backup.json'; a.click(); }
+    function importData(inp) { const r = new FileReader(); r.onload = e => { if(confirm("Daten überschreiben?")) { entries = JSON.parse(e.target.result); localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); location.reload(); } }; r.readAsText(inp.files[0]); }
 
     renderHome();
 </script>
