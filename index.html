@@ -2,15 +2,13 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Updated Theme Color to Forest Teal -->
     <meta name="theme-color" content="#4A6C6F">
     <meta name="application-name" content="Kopfschmerz Tracker">
     
-    <!-- Updated App Icon color to match theme -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234A6C6F%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234A6C6F%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
 
@@ -18,22 +16,20 @@
     <style>
         :root {
             /* Cozy Nature Palette */
-            --primary: #4A6C6F;    /* Deep Forest Lake Teal */
-            --bg: #F5F1E6;         /* Warm Oatmeal/Paper Beige */
-            --surface: #ffffff;    /* White */
-            --text: #3E3C38;       /* Warm Dark Gray/Brown */
+            --primary: #4A6C6F;
+            --bg: #F5F1E6;
+            --surface: #ffffff;
+            --text: #3E3C38;
             
-            /* Status Colors (Autumnal) */
-            --danger: #C05746;     /* Rust Red (Fire/Autumn Leaves) */
-            --mild: #7EA0A3;       /* Muted Lake Blue */
-            --safe: #8FA876;       /* Moss Green */
-            --gray: #DCD6CC;       /* Warm Gray */
+            --danger: #C05746;
+            --mild: #7EA0A3;
+            --safe: #8FA876;
+            --gray: #DCD6CC;
             
-            /* Heatmap Colors (Nature Gradient) */
-            --heat-low: #8FA876;   /* Moss */
-            --heat-med: #E6B867;   /* Mustard/Golden Leaves */
-            --heat-high: #D68C45;  /* Pumpkin/Dry Leaves */
-            --heat-ext: #C05746;   /* Rust Red/Fire */
+            --heat-low: #8FA876;
+            --heat-med: #E6B867;
+            --heat-high: #D68C45;
+            --heat-ext: #C05746;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -44,24 +40,24 @@
             color: var(--text);
             margin: 0;
             padding: 0;
-            height: 100dvh; 
-            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height */
+            width: 100vw;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             overscroll-behavior-y: none;
         }
 
-        /* App Layout */
+        /* App Layout Container */
         .app-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             background: var(--bg);
-            max-width: 600px;
-            margin: 0 auto;
             width: 100%;
+            max-width: 600px; /* Limits width on tablets/desktop */
+            margin: 0 auto; /* Centers app on larger screens */
             position: relative;
         }
 
@@ -70,21 +66,24 @@
             background: var(--primary);
             color: white;
             padding: 15px 20px;
+            padding-top: max(15px, env(safe-area-inset-top)); /* Notch support */
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 1.2rem;
             font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 10;
             flex-shrink: 0;
         }
+
+        .header-controls { display: flex; gap: 10px; }
 
         .header-btn {
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 8px;
+            padding: 0;
             border-radius: 50%;
             cursor: pointer;
             width: 36px;
@@ -93,185 +92,198 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            transition: background 0.2s;
         }
+        .header-btn:active { background: rgba(255,255,255,0.4); }
 
-        /* Bottom Navigation (Fixed) */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            background: var(--surface);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            padding-bottom: env(safe-area-inset-bottom);
-            height: 60px;
-            z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
-        }
-
-        .nav-item {
-            flex: 1;
-            padding: 8px 0;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #999;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            transition: color 0.2s;
-        }
-
-        .nav-item.active { color: var(--primary); }
-        .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
-
-        /* Views */
+        /* Main Content Views */
         .view {
             display: none;
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: 20px;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: 90px; /* Space for Bottom Nav */
+            padding-bottom: calc(80px + env(safe-area-inset-bottom)); /* Space for Nav */
         }
-        .view.active { display: block; }
+        .view.active { display: block; animation: fadeInView 0.2s ease-out; }
+        @keyframes fadeInView { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Dashboard */
+        /* Dashboard Items */
         .widget-card {
             background: var(--surface);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(74, 108, 111, 0.08); /* Colored shadow hint */
+            box-shadow: 0 4px 15px rgba(74, 108, 111, 0.08);
             margin-bottom: 20px;
             text-align: center;
             position: relative;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.6);
         }
         .date-display { font-size: 1.1rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
         .status-display { font-size: 1.8rem; font-weight: bold; margin: 10px 0; color: var(--text); }
         
         .streak-badge {
             position: absolute; top: 15px; right: 15px;
-            background: #fff8f0; color: var(--heat-high); padding: 5px 10px;
-            border-radius: 20px; font-weight: bold; font-size: 0.9rem;
-            display: flex; align-items: center; gap: 5px; border: 1px solid #ffe0cc;
+            background: #fff8f0; color: var(--heat-high); padding: 5px 12px;
+            border-radius: 20px; font-weight: bold; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 6px; border: 1px solid #ffe0cc;
         }
 
         .quick-add-btn {
             background: var(--primary); color: white; border: none; border-radius: 50px;
             padding: 15px 30px; font-size: 1.1rem; font-weight: bold;
-            box-shadow: 0 4px 12px rgba(74, 108, 111, 0.3); cursor: pointer;
+            box-shadow: 0 4px 12px rgba(74, 108, 111, 0.25); cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; margin-top: 10px; transition: transform 0.1s;
+            width: 100%; margin-top: 15px; transition: transform 0.1s;
         }
-        .quick-add-btn:active { transform: scale(0.98); }
+        .quick-add-btn:active { transform: scale(0.97); }
         
         .today-item {
-            background: var(--surface); border-left: 4px solid var(--primary);
-            padding: 12px; border-radius: 8px; margin-bottom: 10px;
+            background: var(--surface); border-left: 5px solid var(--primary);
+            padding: 16px; border-radius: 12px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03); transition: transform 0.1s;
         }
+        .today-item:active { transform: scale(0.99); background: #fdfdfd; }
 
         /* Calendar */
         .calendar-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 20px 0; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-        .day-name { text-align: center; font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        .day-name { text-align: center; font-size: 0.8rem; color: #888; margin-bottom: 5px; font-weight: bold; }
         .day {
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-            border-radius: 10px; font-size: 0.9rem; background: var(--surface);
+            border-radius: 12px; font-size: 0.95rem; background: var(--surface);
             box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;
-            color: var(--text);
+            color: var(--text); cursor: pointer;
         }
         .day.today { border: 2px solid var(--primary); font-weight: bold; }
         .day.pain-short { background: var(--mild); color: white; }
         .day.pain-long { background: var(--danger); color: white; }
-        .day.future { opacity: 0.4; background: rgba(0,0,0,0.05); }
+        .day.future { opacity: 0.4; background: rgba(0,0,0,0.05); pointer-events: none; }
 
         /* Stats */
-        .stats-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
-        .print-btn {
-            background: var(--text); color: white; width: 100%; padding: 15px;
-            border-radius: 10px; border: none; font-weight: bold; margin-top: 20px;
-            display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
-        }
-        
-        /* Stats Table */
+        .stats-card { background: var(--surface); border-radius: 16px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         .stats-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         .stats-table th { text-align: left; border-bottom: 2px solid #eee; padding: 8px 4px; color: #888; }
-        .stats-table td { border-bottom: 1px solid #f5f5f5; padding: 8px 4px; }
-
-        /* Heatmap Controls */
-        .heatmap-controls {
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
-        }
+        .stats-table td { border-bottom: 1px solid #f5f5f5; padding: 10px 4px; vertical-align: top;}
+        
+        .heatmap-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .heatmap-toggle {
-            padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px;
-            font-size: 0.85rem; cursor: pointer; background: var(--surface); color: var(--text);
+            padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px;
+            font-size: 0.9rem; cursor: pointer; background: var(--surface); color: var(--text); flex: 1; text-align: center; max-width: 150px;
         }
-        .heatmap-toggle.active {
-            background: var(--primary); color: white; border-color: var(--primary);
+        .heatmap-toggle.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .print-btn {
+            background: var(--text); color: white; width: 100%; padding: 15px;
+            border-radius: 12px; border: none; font-weight: bold; margin-top: 20px;
+            display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
         }
 
-        /* Modal */
+        /* BOTTOM NAVIGATION (Z-Index < Modal) */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            display: flex; background: var(--surface);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+            height: 60px;
+            z-index: 100; /* Lower than Modal (2000) */
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+        }
+        .nav-item {
+            flex: 1; padding: 8px 0; text-align: center; font-size: 0.75rem; color: #999;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
+
+        /* MODAL OVERLAY (High Z-Index) */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(62, 60, 56, 0.5); z-index: 200; /* Darker warm overlay */
+            background: rgba(62, 60, 56, 0.6); /* Warm dark overlay */
+            backdrop-filter: blur(2px);
+            z-index: 2000; /* Higher than Nav */
             display: flex; align-items: flex-end;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .modal.active { opacity: 1; pointer-events: all; }
+        
         .modal-content {
-            background: var(--bg); width: 100%; height: 95vh;
-            border-radius: 20px 20px 0 0; padding: 20px;
-            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            background: var(--bg); width: 100%; height: 95dvh; /* Almost full height */
+            border-top-left-radius: 24px; border-top-right-radius: 24px;
+            padding: 0; /* Padding managed by children for scroll */
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
             display: flex; flex-direction: column; max-width: 600px; margin: 0 auto;
+            overflow: hidden; /* Prevent double scrollbars */
         }
         .modal.active .modal-content { transform: translateY(0); }
 
-        /* Forms */
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text); font-size: 0.95rem; }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: var(--surface); color: var(--text); }
-        
-        .required-marker { color: var(--danger); margin-left: 3px; }
-
-        /* Sleep Input Group */
-        .sleep-input-group { display: flex; align-items: center; gap: 10px; }
-        .add-nap-btn {
-            background: var(--safe); color: white; border: none; width: 44px; height: 44px;
-            border-radius: 8px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        .modal-header {
+            padding: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05); background: var(--bg);
+            flex-shrink: 0;
         }
 
+        /* SCROLLABLE FORM AREA */
+        .scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* FOOTER FOR SAVE BUTTON (Stays at bottom of flow) */
+        .form-footer {
+            padding: 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            background: var(--bg);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            flex-shrink: 0;
+        }
+
+        /* Form Elements - Scalable */
+        .form-group { margin-bottom: 24px; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text); font-size: 0.95rem; }
+        
+        /* Flex Inputs for Side-by-Side */
+        .input-row { display: flex; gap: 12px; margin-bottom: 20px; }
+        .input-col { flex: 1; }
+
+        input, textarea, select {
+            width: 100%; padding: 14px; border: 1px solid #ddd;
+            border-radius: 12px; font-size: 1rem; background: var(--surface); color: var(--text);
+            -webkit-appearance: none;
+        }
+        
         /* Collapsible Details */
         details {
-            background: var(--surface); border-radius: 12px; margin-bottom: 15px;
+            background: var(--surface); border-radius: 16px; margin-bottom: 16px;
             border: 1px solid rgba(0,0,0,0.05); overflow: hidden;
         }
         summary {
-            padding: 15px; font-weight: bold; cursor: pointer; list-style: none;
+            padding: 16px; font-weight: bold; cursor: pointer; list-style: none;
             display: flex; justify-content: space-between; align-items: center;
             background: var(--surface); color: var(--text);
         }
-        summary::after { content: '+'; font-size: 1.2rem; font-weight: normal; color: #888; }
-        details[open] summary::after { content: '-'; }
+        summary::after { content: '+'; font-size: 1.4rem; color: #888; font-weight: normal; }
+        details[open] summary::after { content: '−'; } /* Minus sign */
         details[open] summary { border-bottom: 1px solid #eee; }
-        .details-content { padding: 15px; }
+        .details-content { padding: 16px; }
 
         /* Brain Map */
-        .brain-container { display: flex; justify-content: center; margin: 10px 0; }
-        svg#brain-map { width: 160px; height: 200px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
+        .brain-container { display: flex; justify-content: center; margin: 10px 0 20px 0; }
+        svg#brain-map { width: 180px; height: 220px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
         .brain-part { fill: #dcd6cc; stroke: white; stroke-width: 2px; transition: fill 0.2s; }
         .brain-part.active { fill: var(--danger); }
 
         /* Chips */
-        .chip-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip-container { display: flex; flex-wrap: wrap; gap: 10px; }
         .type-chip {
-            padding: 8px 14px; background: var(--surface); border: 1px solid #ddd;
-            border-radius: 20px; font-size: 0.9rem; cursor: pointer;
+            flex-grow: 1; text-align: center; /* Scale chips */
+            padding: 10px 16px; background: var(--surface); border: 1px solid #ddd;
+            border-radius: 24px; font-size: 0.9rem; cursor: pointer;
             transition: all 0.2s;
         }
         .type-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -279,15 +291,25 @@
         .type-chip.trigger.active { background: var(--heat-high); border-color: var(--heat-high); color: white; }
         
         .weather-options {
-            display: none; background: #fff8f0; padding: 10px; border-radius: 8px;
-            margin-top: 10px; width: 100%; border: 1px solid #e6cba8;
+            display: none; background: #fff8f0; padding: 12px; border-radius: 12px;
+            margin-top: 12px; width: 100%; border: 1px solid #e6cba8;
         }
         .weather-options.visible { display: flex; flex-wrap: wrap; gap: 8px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: auto; }
-        .btn-delete { width: 100%; padding: 12px; background: none; color: #999; border: none; margin-top: 10px; }
+        /* Sleep + Button */
+        .sleep-input-group { display: flex; align-items: center; gap: 8px; }
+        .add-nap-btn {
+            background: var(--safe); color: white; border: none;
+            width: 48px; height: 48px; flex-shrink: 0;
+            border-radius: 12px; font-size: 1.6rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .btn-save { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(74, 108, 111, 0.3); }
+        .btn-delete { width: 100%; padding: 14px; background: transparent; color: #999; border: 1px solid #eee; border-radius: 14px; margin-top: 12px; font-size: 0.95rem; }
         .hidden { display: none !important; }
+        .required-marker { color: var(--danger); margin-left: 3px; }
 
         /* Print Styles */
         @media print {
@@ -312,8 +334,8 @@
         <span>Kopfschmerz Tracker</span>
         <div class="header-controls">
             <input type="file" id="importFile" accept=".txt,.json" style="display:none" onchange="importData(this)">
-            <button class="header-btn" onclick="document.getElementById('importFile').click()">📂</button>
-            <button class="header-btn" onclick="exportData()">💾</button>
+            <button class="header-btn" onclick="document.getElementById('importFile').click()" title="Import">📂</button>
+            <button class="header-btn" onclick="exportData()" title="Export">💾</button>
         </div>
     </header>
 
@@ -325,16 +347,16 @@
             <div class="status-display" id="dashStatus">Schmerzfrei 🌿</div>
             <button class="quick-add-btn" onclick="openTodayModal()"><span>+</span> Neuer Eintrag</button>
         </div>
-        <h3 style="margin-left:5px; color:#555;">Heutige Einträge</h3>
+        <h3 style="margin-left:5px; color:var(--text);">Heutige Einträge</h3>
         <div id="dashList" class="today-list"></div>
     </div>
 
     <!-- CALENDAR -->
     <div id="view-calendar" class="view">
         <div class="calendar-controls">
-            <button onclick="changeMonth(-1)" style="background:none;border:none;font-size:1.5rem;color:var(--text);">&lt;</button>
+            <button onclick="changeMonth(-1)" style="background:none;border:none;font-size:1.5rem;color:var(--text);padding:10px;">&lt;</button>
             <span id="monthDisplay" style="font-weight:bold; font-size:1.1rem;"></span>
-            <button onclick="changeMonth(1)" style="background:none;border:none;font-size:1.5rem;color:var(--text);">&gt;</button>
+            <button onclick="changeMonth(1)" style="background:none;border:none;font-size:1.5rem;color:var(--text);padding:10px;">&gt;</button>
         </div>
         <div class="calendar-grid" id="calendar"></div>
         <div style="text-align:center; font-size:0.8rem; color:#888; margin-top:20px;">
@@ -346,12 +368,12 @@
     <div id="view-stats" class="view">
         <div class="stats-card">
             <h3>Zeitraum wählen</h3>
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div style="flex:1">
+            <div class="input-row" style="margin-bottom:10px;">
+                <div class="input-col">
                     <label style="font-size:0.8rem">Von</label>
                     <input type="date" id="statsStart" onchange="renderStats()">
                 </div>
-                <div style="flex:1">
+                <div class="input-col">
                     <label style="font-size:0.8rem">Bis</label>
                     <input type="date" id="statsEnd" onchange="renderStats()">
                 </div>
@@ -395,7 +417,7 @@
 
         <div class="stats-card">
             <h3>Zusammenfassung für den Arzt</h3>
-            <div id="statsTableContainer"></div>
+            <div id="statsTableContainer" style="overflow-x:auto;"></div>
         </div>
 
         <button class="print-btn" onclick="printReport()">
@@ -403,7 +425,7 @@
         </button>
     </div>
 
-    <!-- BOTTOM NAVIGATION (Moved here) -->
+    <!-- BOTTOM NAVIGATION -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)">
             <span class="nav-icon">🏠</span><span>Heute</span>
@@ -420,152 +442,156 @@
 <!-- MODAL -->
 <div class="modal" id="entryModal">
     <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <!-- Modal Header -->
+        <div class="modal-header">
             <div style="display:flex; align-items:center;">
                 <button id="backBtn" onclick="showListView()" style="border:none; background:none; font-size:1.5rem; margin-right:10px; display:none; color:var(--text);">&larr;</button>
-                <h2 id="modalDateTitle" style="margin:0; font-size:1.3rem;">Datum</h2>
+                <h2 id="modalDateTitle" style="margin:0; font-size:1.3rem; color:var(--primary);">Datum</h2>
             </div>
-            <button onclick="closeModal()" style="border:none; background:none; font-size:1.8rem; padding:0 10px; color:var(--text);">&times;</button>
+            <button onclick="closeModal()" style="border:none; background:none; font-size:2rem; padding:0 10px; color:var(--text); line-height:1;">&times;</button>
         </div>
 
-        <div id="listContainer" style="overflow-y:auto; flex:1;">
+        <!-- List View -->
+        <div id="listContainer" class="scroll-container" style="display:none;">
             <div id="entriesList"></div>
-            <button class="quick-add-btn" onclick="showFormView(true)" style="margin-top:20px; background:white; color:var(--primary); border:2px dashed #ccc; box-shadow:none;">+ Weiterer Eintrag</button>
+            <button class="quick-add-btn" onclick="showFormView(true)" style="background:var(--surface); color:var(--primary); border:2px dashed #ccc; box-shadow:none;">+ Weiterer Eintrag</button>
         </div>
 
-        <div id="formContainer" style="overflow-y:auto; flex:1; display:none;">
+        <!-- Form View Container (Flex) -->
+        <div id="formContainer" style="display:flex; flex-direction:column; height:100%; overflow:hidden;">
             
-            <!-- SECTION 1: BASIS -->
-            <details open>
-                <summary>Schmerz Details <span class="required-marker">*</span></summary>
-                <div class="details-content">
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <div style="flex:1;">
-                            <label>Uhrzeit</label>
-                            <input type="time" id="timeInput">
-                        </div>
-                        <div style="flex:1;">
-                            <label>Dauer (Min) <span class="required-marker">*</span></label>
-                            <input type="number" id="durationInput" placeholder="Pflichtfeld">
-                        </div>
-                    </div>
-                    
-                    <label>Bereich auswählen <span class="required-marker">*</span></label>
-                    <div class="brain-container">
-                        <svg id="brain-map" viewBox="0 0 200 240">
-                            <path id="frontal" class="brain-part" d="M 50,60 Q 100,20 150,60 L 150,80 Q 100,60 50,80 Z" data-name="Stirn" />
-                            <path id="temporal-l" class="brain-part" d="M 30,80 Q 20,120 30,160 L 60,150 Q 50,110 60,80 Z" data-name="Schläfe L" />
-                            <path id="temporal-r" class="brain-part" d="M 170,80 Q 180,120 170,160 L 140,150 Q 150,110 140,80 Z" data-name="Schläfe R" />
-                            <path id="parietal" class="brain-part" d="M 60,80 Q 100,60 140,80 L 140,150 Q 100,140 60,150 Z" data-name="Scheitel" />
-                            <path id="occipital" class="brain-part" d="M 40,165 Q 100,210 160,165 L 140,150 Q 100,140 60,150 Z" data-name="Hinterkopf" />
-                            <circle id="eye-l" class="brain-part" cx="70" cy="70" r="8" data-name="Auge L" />
-                            <circle id="eye-r" class="brain-part" cx="130" cy="70" r="8" data-name="Auge R" />
-                            <path id="neck" class="brain-part" d="M 70,200 L 70,220 L 130,220 L 130,200 Q 100,210 70,200 Z" data-name="Nacken" />
-                        </svg>
-                    </div>
-                    <div id="selected-parts-text" style="text-align:center; color:#888; margin-bottom:15px; font-size:0.9rem;">Kein Bereich</div>
-
-                    <label>Intensität: <span id="painValue" style="color:var(--primary)">0</span></label>
-                    <input type="range" id="painSlider" min="0" max="10" value="0" oninput="document.getElementById('painValue').innerText=this.value" style="accent-color:var(--primary); width:100%;">
-                    
-                    <label style="margin-top:15px;">Symptome / Art</label>
-                    <div class="chip-container">
-                        <div class="type-chip" onclick="toggleChip(this)">Pulsierend</div>
-                        <div class="type-chip" onclick="toggleChip(this)">Drückend</div>
-                        <div class="type-chip" onclick="toggleChip(this)">Stechend</div>
-                        <div class="type-chip" onclick="toggleChip(this)">Pochend</div>
-                        <div class="type-chip" onclick="toggleChip(this)">Übelkeit</div>
-                        <div class="type-chip" onclick="toggleChip(this)">Lichtempfindlich</div>
-                        <div class="type-chip" onclick="toggleChip(this)">Lärmempfindlich</div>
-                    </div>
-                </div>
-            </details>
-
-            <!-- SECTION 2: FAKTOREN & URSACHEN -->
-            <details>
-                <summary>Faktoren & Auslöser</summary>
-                <div class="details-content">
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <div style="flex:1;">
-                            <label>Schlaf (Std)</label>
-                            <div class="sleep-input-group">
-                                <input type="number" id="sleepInput" placeholder="7.5" readonly style="background:#e0ded8; color:#555;">
-                                <button class="add-nap-btn" onclick="addNap()">+</button>
+            <!-- Scrollable Content -->
+            <div class="scroll-container">
+                <!-- SECTION 1: BASIS -->
+                <details open>
+                    <summary>Schmerz Details <span class="required-marker">*</span></summary>
+                    <div class="details-content">
+                        <div class="input-row">
+                            <div class="input-col">
+                                <label>Uhrzeit</label>
+                                <input type="time" id="timeInput">
+                            </div>
+                            <div class="input-col">
+                                <label>Dauer (Min) <span class="required-marker">*</span></label>
+                                <input type="number" id="durationInput" placeholder="Pflichtfeld">
                             </div>
                         </div>
-                        <div style="flex:1;">
-                            <label>Qualität</label>
-                            <select id="sleepQualityInput">
-                                <option value="">-</option>
-                                <option value="Gut">Gut</option>
-                                <option value="Mittel">Mittel</option>
-                                <option value="Schlecht">Schlecht</option>
-                            </select>
+                        
+                        <label>Bereich auswählen <span class="required-marker">*</span></label>
+                        <div class="brain-container">
+                            <svg id="brain-map" viewBox="0 0 200 240">
+                                <path id="frontal" class="brain-part" d="M 50,60 Q 100,20 150,60 L 150,80 Q 100,60 50,80 Z" data-name="Stirn" />
+                                <path id="temporal-l" class="brain-part" d="M 30,80 Q 20,120 30,160 L 60,150 Q 50,110 60,80 Z" data-name="Schläfe L" />
+                                <path id="temporal-r" class="brain-part" d="M 170,80 Q 180,120 170,160 L 140,150 Q 150,110 140,80 Z" data-name="Schläfe R" />
+                                <path id="parietal" class="brain-part" d="M 60,80 Q 100,60 140,80 L 140,150 Q 100,140 60,150 Z" data-name="Scheitel" />
+                                <path id="occipital" class="brain-part" d="M 40,165 Q 100,210 160,165 L 140,150 Q 100,140 60,150 Z" data-name="Hinterkopf" />
+                                <circle id="eye-l" class="brain-part" cx="70" cy="70" r="8" data-name="Auge L" />
+                                <circle id="eye-r" class="brain-part" cx="130" cy="70" r="8" data-name="Auge R" />
+                                <path id="neck" class="brain-part" d="M 70,200 L 70,220 L 130,220 L 130,200 Q 100,210 70,200 Z" data-name="Nacken" />
+                            </svg>
+                        </div>
+                        <div id="selected-parts-text" style="text-align:center; color:#888; margin-bottom:15px; font-size:0.9rem;">Kein Bereich</div>
+
+                        <label>Intensität: <span id="painValue" style="color:var(--primary)">0</span></label>
+                        <input type="range" id="painSlider" min="0" max="10" value="0" oninput="document.getElementById('painValue').innerText=this.value" style="accent-color:var(--primary); width:100%;">
+                        
+                        <label style="margin-top:15px;">Symptome / Art</label>
+                        <div class="chip-container">
+                            <div class="type-chip" onclick="toggleChip(this)">Pulsierend</div>
+                            <div class="type-chip" onclick="toggleChip(this)">Drückend</div>
+                            <div class="type-chip" onclick="toggleChip(this)">Stechend</div>
+                            <div class="type-chip" onclick="toggleChip(this)">Pochend</div>
+                            <div class="type-chip" onclick="toggleChip(this)">Übelkeit</div>
+                            <div class="type-chip" onclick="toggleChip(this)">Lichtempfindlich</div>
+                            <div class="type-chip" onclick="toggleChip(this)">Lärmempfindlich</div>
                         </div>
                     </div>
+                </details>
 
-                    <label>Stresslevel (1-10): <span id="stressValue">0</span></label>
-                    <input type="range" id="stressInput" min="0" max="10" value="0" oninput="document.getElementById('stressValue').innerText=this.value" style="accent-color:#d98e46; width:100%; margin-bottom:15px;">
+                <!-- SECTION 2: FAKTOREN & URSACHEN -->
+                <details>
+                    <summary>Faktoren & Auslöser</summary>
+                    <div class="details-content">
+                        <div class="input-row">
+                            <div class="input-col">
+                                <label>Schlaf (Std)</label>
+                                <div class="sleep-input-group">
+                                    <input type="number" id="sleepInput" placeholder="7.5" readonly style="background:#e0ded8; color:#555;">
+                                    <button class="add-nap-btn" onclick="addNap()">+</button>
+                                </div>
+                            </div>
+                            <div class="input-col">
+                                <label>Qualität</label>
+                                <select id="sleepQualityInput">
+                                    <option value="">-</option>
+                                    <option value="Gut">Gut</option>
+                                    <option value="Mittel">Mittel</option>
+                                    <option value="Schlecht">Schlecht</option>
+                                </select>
+                            </div>
+                        </div>
 
-                    <label>Auslöser & Einflüsse</label>
-                    <div class="chip-container" id="triggersContainer">
-                        <div class="type-chip trigger" onclick="toggleWeatherOptions(this)">Wetter/Barometer</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Menstruation</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Alkohol</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Koffein</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Schokolade</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Käse</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Zu wenig Wasser</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Sport/Aktivität</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Bildschirmarbeit</div>
+                        <label>Stresslevel (1-10): <span id="stressValue">0</span></label>
+                        <input type="range" id="stressInput" min="0" max="10" value="0" oninput="document.getElementById('stressValue').innerText=this.value" style="accent-color:#d98e46; width:100%; margin-bottom:15px;">
+
+                        <label>Auslöser & Einflüsse</label>
+                        <div class="chip-container" id="triggersContainer">
+                            <div class="type-chip trigger" onclick="toggleWeatherOptions(this)">Wetter/Barometer</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Menstruation</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Alkohol</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Koffein</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Schokolade</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Käse</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Zu wenig Wasser</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Sport/Aktivität</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Bildschirmarbeit</div>
+                        </div>
+
+                        <!-- Hidden Weather Options -->
+                        <div id="weatherOptions" class="weather-options">
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Sturm</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Hitze</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Kälte</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Druckwechsel</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Schwül</div>
+                            <div class="type-chip trigger" onclick="toggleChip(this)">Regen</div>
+                        </div>
+
                     </div>
+                </details>
 
-                    <!-- Hidden Weather Options -->
-                    <div id="weatherOptions" class="weather-options">
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Sturm</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Hitze</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Kälte</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Druckwechsel</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Schwül</div>
-                        <div class="type-chip trigger" onclick="toggleChip(this)">Regen</div>
+                <!-- SECTION 3: MEDIKAMENTE -->
+                <details>
+                    <summary>Behandlung</summary>
+                    <div class="details-content">
+                        <label>Medikament & Dosis</label>
+                        <input type="text" id="medNameInput" placeholder="z.B. Ibuprofen 400mg" style="margin-bottom:12px;">
+                        
+                        <label>Wirkung</label>
+                        <select id="medEffectInput" style="margin-bottom:12px;">
+                            <option value="">-</option>
+                            <option value="Keine">Keine Linderung</option>
+                            <option value="Mittel">Teilweise Linderung</option>
+                            <option value="Gut">Schmerzfrei</option>
+                        </select>
+
+                        <label>Nebenwirkungen</label>
+                        <input type="text" id="medSideEffectInput" placeholder="z.B. Magenweh, Müdigkeit">
                     </div>
+                </details>
 
+                <!-- SECTION 4: NOTIZEN -->
+                <div class="form-group">
+                    <label>Notizen / Was hat geholfen?</label>
+                    <textarea id="notesInput" placeholder="Dunkles Zimmer, Kühlen, Besonderheiten..." style="height:80px;"></textarea>
                 </div>
-            </details>
-
-            <!-- SECTION 3: MEDIKAMENTE -->
-            <details>
-                <summary>Behandlung</summary>
-                <div class="details-content">
-                    <label>Medikament & Dosis</label>
-                    <input type="text" id="medNameInput" placeholder="z.B. Ibuprofen 400mg" style="margin-bottom:10px;">
-                    
-                    <label>Wirkung</label>
-                    <select id="medEffectInput" style="margin-bottom:10px;">
-                        <option value="">-</option>
-                        <option value="Keine">Keine Linderung</option>
-                        <option value="Mittel">Teilweise Linderung</option>
-                        <option value="Gut">Schmerzfrei</option>
-                    </select>
-
-                    <label>Nebenwirkungen</label>
-                    <input type="text" id="medSideEffectInput" placeholder="z.B. Magenweh, Müdigkeit">
-                </div>
-            </details>
-
-            <!-- SECTION 4: NOTIZEN -->
-            <div class="form-group">
-                <label>Notizen / Was hat geholfen?</label>
-                <textarea id="notesInput" placeholder="Dunkles Zimmer, Kühlen, Besonderheiten..." style="height:60px;"></textarea>
             </div>
-            
-            <!-- Button Area Moved Inside Flow -->
-            <div style="width:100%; padding-top:20px; margin-top:20px; border-top:1px solid rgba(0,0,0,0.05);">
+
+            <!-- FIXED FOOTER -->
+            <div class="form-footer">
                 <button id="saveBtn" class="btn-save" onclick="saveEntry()">Speichern</button>
                 <button id="delBtn" class="btn-delete hidden" onclick="deleteEntry()">Löschen</button>
             </div>
-            
-            <div style="height:60px"></div>
         </div>
     </div>
 </div>
@@ -619,13 +645,11 @@
         let streak = 0;
         if(dateKeys.length > 0) {
             let checkDate = new Date();
-            // Check today or yesterday as start
             let sDateStr = formatDate(checkDate);
             if(!entries[sDateStr]) {
                 checkDate.setDate(checkDate.getDate() - 1);
                 sDateStr = formatDate(checkDate);
             }
-            
             while(entries[sDateStr]) {
                 streak++;
                 checkDate.setDate(checkDate.getDate() - 1);
@@ -709,7 +733,8 @@
         const [y, m, d] = dateKey.split('-');
         document.getElementById('modalDateTitle').innerText = `${d}.${m}.${y}`;
         
-        if(entries[dateKey] && entries[dateKey].length > 0) showListView();
+        const dayData = entries[dateKey] || [];
+        if(dayData.length > 0) showListView();
         else showFormView(true);
         document.getElementById('entryModal').classList.add('active');
     }
@@ -724,8 +749,6 @@
         document.getElementById('listContainer').style.display = 'block';
         document.getElementById('formContainer').style.display = 'none';
         document.getElementById('backBtn').style.display = 'none';
-        document.getElementById('saveBtn').style.display = 'none';
-        document.getElementById('delBtn').classList.add('hidden');
 
         const list = document.getElementById('entriesList');
         list.innerHTML = '';
@@ -749,15 +772,12 @@
 
     function showFormView(isNew, id=null) {
         document.getElementById('listContainer').style.display = 'none';
-        document.getElementById('formContainer').style.display = 'block';
+        document.getElementById('formContainer').style.display = 'flex'; // Changed to flex for sticky footer
         document.getElementById('backBtn').style.display = (entries[selectedDateKey]?.length > 0) ? 'block' : 'none';
-        document.getElementById('saveBtn').style.display = 'block';
 
         resetForm();
 
-        // Sleep Logic Check
         const dayEntries = entries[selectedDateKey] || [];
-        // Check if ANY entry for this day has sleep data > 0
         const existingSleepEntry = dayEntries.find(e => e.sleepHours > 0);
         const hasSleepData = !!existingSleepEntry;
         
@@ -767,7 +787,6 @@
             document.getElementById('timeInput').value = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
             document.getElementById('delBtn').classList.add('hidden');
             
-            // If data exists, prefill from it
             if(hasSleepData) {
                 document.getElementById('sleepInput').value = existingSleepEntry.sleepHours;
                 document.getElementById('sleepQualityInput').value = existingSleepEntry.sleepQuality;
@@ -779,7 +798,6 @@
             document.getElementById('delBtn').classList.remove('hidden');
         }
 
-        // Lock Logic: If data exists, lock it. If not (first entry), unlock it.
         const sleepInp = document.getElementById('sleepInput');
         if(hasSleepData) {
              sleepInp.setAttribute('readonly', 'true');
@@ -798,7 +816,6 @@
         document.getElementById('painValue').innerText = '0';
         document.getElementById('durationInput').value = '';
         document.getElementById('notesInput').value = '';
-        // New Fields Reset
         document.getElementById('sleepInput').value = 0;
         document.getElementById('sleepQualityInput').value = '';
         document.getElementById('stressInput').value = 0;
@@ -914,7 +931,6 @@
             entries[selectedDateKey].push(data);
         }
 
-        // Sync Sleep
         entries[selectedDateKey].forEach(e => {
             e.sleepHours = data.sleepHours;
             e.sleepQuality = data.sleepQuality;
@@ -966,11 +982,9 @@
                     painCount++;
                     
                     e.parts.forEach(pid => {
-                        // Weighting Logic
                         let weight = 1;
                         if(heatmapMode === 'intensity') weight = parseInt(e.intensity) || 1;
                         else if(heatmapMode === 'duration') weight = parseInt(e.duration) || 10;
-                        
                         partsFreq[pid] = (partsFreq[pid] || 0) + weight;
                     });
 
@@ -1011,14 +1025,14 @@
                 <tr>
                     <th>Datum</th>
                     <th>Dauer</th>
-                    <th>Intensität</th>
-                    <th>Ort & Art</th>
+                    <th>Stärke</th>
+                    <th>Details</th>
                 </tr>
         `;
         tableData.sort((a,b) => new Date(b.date) - new Date(a.date));
         
         if(tableData.length === 0) {
-            tableHTML += `<tr><td colspan="4" style="text-align:center; padding:10px;">Keine Daten im Zeitraum</td></tr>`;
+            tableHTML += `<tr><td colspan="4" style="text-align:center; padding:10px;">Keine Daten</td></tr>`;
         } else {
             tableData.forEach(d => {
                 const [y,m,day] = d.date.split('-');
@@ -1059,3 +1073,5 @@
 </script>
 </body>
 </html>
+
+
