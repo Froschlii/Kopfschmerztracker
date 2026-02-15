@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kopfschmerz Tracker</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="application-name" content="Kopfschmerz Tracker">
+    <meta name="apple-mobile-web-app-title" content="Tracker">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234a90e2%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234a90e2%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
+
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --text: #2d3436;
+            --danger: #ff6b6b;
+            --mild: #54a0ff;
+            --safe: #1dd1a1;
+            --gray: #dfe6e9;
+            
+            /* Heatmap Colors */
+            --heat-low: #2ecc71;   /* Dunkelgrün - selten */
+            --heat-med: #f1c40f;   /* Gelb/Hellgrün - mittel */
+            --heat-high: #e67e22;  /* Orange/Hellrot - oft */
+            --heat-ext: #c0392b;   /* Dunkelrot - sehr oft */
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            height: 100dvh; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            overscroll-behavior-y: none;
+        }
+
+        /* App Layout */
+        .app-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Navigation */
+        .main-nav {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            height: 60px;
+            flex-shrink: 0;
+            z-index: 100;
+            padding-top: env(safe-area-inset-top);
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #b2bec3;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 1.4rem; margin-bottom: 2px; }
+
+        /* Header */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 40px;
+        }
+        .view.active { display: block; }
+
+        /* Dashboard */
+        .widget-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .date-display { font-size: 1.1rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+        .status-display { font-size: 1.8rem; font-weight: bold; margin: 10px 0; color: var(--text); }
+        
+        .streak-badge {
+            position: absolute; top: 15px; right: 15px;
+            background: #fff0e6; color: #e67e22; padding: 5px 10px;
+            border-radius: 20px; font-weight: bold; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 5px; border: 1px solid #ffe0cc;
+        }
+
+        .quick-add-btn {
+            background: var(--primary); color: white; border: none; border-radius: 50px;
+            padding: 15px 30px; font-size: 1.1rem; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; margin-top: 10px; transition: transform 0.1s;
+        }
+        .quick-add-btn:active { transform: scale(0.98); }
+        
+        .today-item {
+            background: #f8f9fa; border-left: 4px solid var(--primary);
+            padding: 12px; border-radius: 8px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* Calendar */
+        .calendar-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 20px 0; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        .day-name { text-align: center; font-size: 0.8rem; color: #b2bec3; margin-bottom: 5px; }
+        .day {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            border-radius: 10px; font-size: 0.9rem; background: var(--surface);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative;
+        }
+        .day.today { border: 2px solid var(--primary); font-weight: bold; }
+        .day.pain-short { background: var(--mild); color: white; }
+        .day.pain-long { background: var(--danger); color: white; }
+        .day.future { opacity: 0.3; background: #eee; }
+
+        /* Stats */
+        .stats-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .print-btn {
+            background: #2d3436; color: white; width: 100%; padding: 15px;
+            border-radius: 10px; border: none; font-weight: bold; margin-top: 20px;
+            display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+        }
+        
+        /* Stats Table */
+        .stats-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        .stats-table th { text-align: left; border-bottom: 2px solid #eee; padding: 8px 4px; color: #888; }
+        .stats-table td { border-bottom: 1px solid #f5f5f5; padding: 8px 4px; }
+
+        /* Heatmap Controls */
+        .heatmap-controls {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
+        }
+        .heatmap-toggle {
+            padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px;
+            font-size: 0.85rem; cursor: pointer; background: white;
+        }
+        .heatmap-toggle.active {
+            background: var(--primary); color: white; border-color: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 200;
+            display: flex; align-items: flex-end;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .modal.active { opacity: 1; pointer-events: all; }
+        .modal-content {
+            background: white; width: 100%; height: 95vh;
+            border-radius: 20px 20px 0 0; padding: 20px;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; flex-direction: column; max-width: 600px; margin: 0 auto;
+        }
+        .modal.active .modal-content { transform: translateY(0); }
+
+        /* Forms */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.95rem; }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #fff; }
+        
+        .required-marker { color: var(--danger); margin-left: 3px; }
+
+        /* Sleep Input Group */
+        .sleep-input-group { display: flex; align-items: center; gap: 10px; }
+        .add-nap-btn {
+            background: var(--safe); color: white; border: none; width: 44px; height: 44px;
+            border-radius: 8px; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Collapsible Details */
+        details {
+            background: #f8f9fa; border-radius: 12px; margin-bottom: 15px;
+            border: 1px solid #eee; overflow: hidden;
+        }
+        summary {
+            padding: 15px; font-weight: bold; cursor: pointer; list-style: none;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff;
+        }
+        summary::after { content: '+'; font-size: 1.2rem; font-weight: normal; color: #888; }
+        details[open] summary::after { content: '-'; }
+        details[open] summary { border-bottom: 1px solid #eee; }
+        .details-content { padding: 15px; }
+
+        /* Brain Map */
+        .brain-container { display: flex; justify-content: center; margin: 10px 0; }
+        svg#brain-map { width: 160px; height: 200px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        .brain-part { fill: #dfe6e9; stroke: white; stroke-width: 2px; transition: fill 0.2s; }
+        .brain-part.active { fill: var(--danger); }
+
+        /* Chips */
+        .chip-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .type-chip {
+            padding: 8px 14px; background: #fff; border: 1px solid #ddd;
+            border-radius: 20px; font-size: 0.9rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .type-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .type-chip.trigger { border-color: #ff9f43; } 
+        .type-chip.trigger.active { background: #ff9f43; border-color: #ff9f43; }
+        
+        .weather-options {
+            display: none; background: #fff3e0; padding: 10px; border-radius: 8px;
+            margin-top: 10px; width: 100%; border: 1px solid #ffcc80;
+        }
+        .weather-options.visible { display: flex; flex-wrap: wrap; gap: 8px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; margin-top: auto; }
+        .btn-delete { width: 100%; padding: 12px; background: none; color: #999; border: none; margin-top: 10px; }
+        .hidden { display: none !important; }
+
+        /* Print Styles */
+        @media print {
+            body { height: auto; overflow: visible; background: white; }
+            .app-container > *:not(#print-area) { display: none !important; }
+            #print-area { display: block !important; padding: 20px; }
+        }
+        #print-area { display: none; }
+
+    </style>
+</head>
+<body>
+
+<!-- PRINT AREA -->
+<div id="print-area">
+    <h2>Kopfschmerz-Protokoll</h2>
+    <div id="print-content"></div>
+</div>
+
+<div class="app-container">
+    <div class="main-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)">
+            <span class="nav-icon">🏠</span><span>Heute</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('calendar', this)">
+            <span class="nav-icon">📅</span><span>Kalender</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('stats', this)">
+            <span class="nav-icon">📊</span><span>Statistik</span>
+        </div>
+    </div>
+
+    <header>
+        <span>Kopfschmerz Tracker</span>
+        <div class="header-controls">
+            <input type="file" id="importFile" accept=".txt,.json" style="display:none" onchange="importData(this)">
+            <button class="header-btn" onclick="document.getElementById('importFile').click()">📂</button>
+            <button class="header-btn" onclick="exportData()">💾</button>
+        </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <div id="view-home" class="view active">
+        <div class="widget-card">
+            <div class="streak-badge" id="streakBadge">🔥 0</div>
+            <div class="date-display" id="dashDate">HEUTE</div>
+            <div class="status-display" id="dashStatus">Schmerzfrei 🌿</div>
+            <button class="quick-add-btn" onclick="openTodayModal()"><span>+</span> Neuer Eintrag</button>
+        </div>
+        <h3 style="margin-left:5px; color:#555;">Heutige Einträge</h3>
+        <div id="dashList" class="today-list"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="view-calendar" class="view">
+        <div class="calendar-controls">
+            <button onclick="changeMonth(-1)" style="background:none;border:none;font-size:1.5rem;">&lt;</button>
+            <span id="monthDisplay" style="font-weight:bold; font-size:1.1rem;"></span>
+            <button onclick="changeMonth(1)" style="background:none;border:none;font-size:1.5rem;">&gt;</button>
+        </div>
+        <div class="calendar-grid" id="calendar"></div>
+        <div style="text-align:center; font-size:0.8rem; color:#888; margin-top:20px;">
+            <span style="color:var(--mild)">●</span> &lt;30 Min &nbsp; <span style="color:var(--danger)">●</span> &gt;30 Min
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div id="view-stats" class="view">
+        <div class="stats-card">
+            <h3>Zeitraum wählen</h3>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div style="flex:1">
+                    <label style="font-size:0.8rem">Von</label>
+                    <input type="date" id="statsStart" onchange="renderStats()">
+                </div>
+                <div style="flex:1">
+                    <label style="font-size:0.8rem">Bis</label>
+                    <input type="date" id="statsEnd" onchange="renderStats()">
+                </div>
+            </div>
+            
+            <div style="display:flex; justify-content:space-around; margin-top:10px; background:#f9f9f9; padding:10px; border-radius:8px;">
+                <div style="text-align:center;">
+                    <div id="stat-days" style="font-size:1.4rem; font-weight:bold; color:var(--primary)">0</div>
+                    <div style="font-size:0.75rem; color:#888;">Schmerztage</div>
+                </div>
+                <div style="text-align:center;">
+                    <div id="stat-pain" style="font-size:1.4rem; font-weight:bold; color:var(--danger)">0</div>
+                    <div style="font-size:0.75rem; color:#888;">Ø Intensität</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-card">
+            <h3>Heatmap: Schmerz-Areale</h3>
+            
+            <div class="heatmap-controls">
+                <div class="heatmap-toggle active" id="btn-hm-int" onclick="setHeatmapMode('intensity')">Nach Intensität</div>
+                <div class="heatmap-toggle" id="btn-hm-dur" onclick="setHeatmapMode('duration')">Nach Dauer</div>
+            </div>
+
+            <p style="font-size:0.8rem; color:#666; margin-bottom:10px; text-align:center;">Grün (Wenig) &rarr; Rot (Viel)</p>
+            <div class="brain-container">
+                <svg id="brain-stats" viewBox="0 0 200 240" style="width:180px; height:220px;">
+                    <!-- Clone of brain map for stats -->
+                    <path id="stat-frontal" class="brain-part" d="M 50,60 Q 100,20 150,60 L 150,80 Q 100,60 50,80 Z" />
+                    <path id="stat-temporal-l" class="brain-part" d="M 30,80 Q 20,120 30,160 L 60,150 Q 50,110 60,80 Z" />
+                    <path id="stat-temporal-r" class="brain-part" d="M 170,80 Q 180,120 170,160 L 140,150 Q 150,110 140,80 Z" />
+                    <path id="stat-parietal" class="brain-part" d="M 60,80 Q 100,60 140,80 L 140,150 Q 100,140 60,150 Z" />
+                    <path id="stat-occipital" class="brain-part" d="M 40,165 Q 100,210 160,165 L 140,150 Q 100,140 60,150 Z" />
+                    <circle id="stat-eye-l" class="brain-part" cx="70" cy="70" r="8" />
+                    <circle id="stat-eye-r" class="brain-part" cx="130" cy="70" r="8" />
+                    <path id="stat-neck" class="brain-part" d="M 70,200 L 70,220 L 130,220 L 130,200 Q 100,210 70,200 Z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="stats-card">
+            <h3>Zusammenfassung für den Arzt</h3>
+            <div id="statsTableContainer"></div>
+        </div>
+
+        <button class="print-btn" onclick="printReport()">
+            <span>📄</span> PDF / Drucken
+        </button>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="entryModal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="display:flex; align-items:center;">
+                <button id="backBtn" onclick="showListView()" style="border:none; background:none; font-size:1.5rem; margin-right:10px; display:none;">&larr;</button>
+                <h2 id="modalDateTitle" style="margin:0; font-size:1.3rem;">Datum</h2>
+            </div>
+            <button onclick="closeModal()" style="border:none; background:none; font-size:1.8rem; padding:0 10px;">&times;</button>
+        </div>
+
+        <div id="listContainer" style="overflow-y:auto; flex:1;">
+            <div id="entriesList"></div>
+            <button class="quick-add-btn" onclick="showFormView(true)" style="margin-top:20px; background:white; color:var(--primary); border:2px dashed #ccc; box-shadow:none;">+ Weiterer Eintrag</button>
+        </div>
+
+        <div id="formContainer" style="overflow-y:auto; flex:1; display:none;">
+            
+            <!-- SECTION 1: BASIS -->
+            <details open>
+                <summary>Schmerz Details <span class="required-marker">*</span></summary>
+                <div class="details-content">
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <div style="flex:1;">
+                            <label>Uhrzeit</label>
+                            <input type="time" id="timeInput">
+                        </div>
+                        <div style="flex:1;">
+                            <label>Dauer (Min) <span class="required-marker">*</span></label>
+                            <input type="number" id="durationInput" placeholder="Pflichtfeld">
+                        </div>
+                    </div>
+                    
+                    <label>Bereich auswählen <span class="required-marker">*</span></label>
+                    <div class="brain-container">
+                        <svg id="brain-map" viewBox="0 0 200 240">
+                            <path id="frontal" class="brain-part" d="M 50,60 Q 100,20 150,60 L 150,80 Q 100,60 50,80 Z" data-name="Stirn" />
+                            <path id="temporal-l" class="brain-part" d="M 30,80 Q 20,120 30,160 L 60,150 Q 50,110 60,80 Z" data-name="Schläfe L" />
+                            <path id="temporal-r" class="brain-part" d="M 170,80 Q 180,120 170,160 L 140,150 Q 150,110 140,80 Z" data-name="Schläfe R" />
+                            <path id="parietal" class="brain-part" d="M 60,80 Q 100,60 140,80 L 140,150 Q 100,140 60,150 Z" data-name="Scheitel" />
+                            <path id="occipital" class="brain-part" d="M 40,165 Q 100,210 160,165 L 140,150 Q 100,140 60,150 Z" data-name="Hinterkopf" />
+                            <circle id="eye-l" class="brain-part" cx="70" cy="70" r="8" data-name="Auge L" />
+                            <circle id="eye-r" class="brain-part" cx="130" cy="70" r="8" data-name="Auge R" />
+                            <path id="neck" class="brain-part" d="M 70,200 L 70,220 L 130,220 L 130,200 Q 100,210 70,200 Z" data-name="Nacken" />
+                        </svg>
+                    </div>
+                    <div id="selected-parts-text" style="text-align:center; color:#888; margin-bottom:15px; font-size:0.9rem;">Kein Bereich</div>
+
+                    <label>Intensität: <span id="painValue" style="color:var(--primary)">0</span></label>
+                    <input type="range" id="painSlider" min="0" max="10" value="0" oninput="document.getElementById('painValue').innerText=this.value" style="accent-color:var(--primary); width:100%;">
+                    
+                    <label style="margin-top:15px;">Symptome / Art</label>
+                    <div class="chip-container">
+                        <div class="type-chip" onclick="toggleChip(this)">Pulsierend</div>
+                        <div class="type-chip" onclick="toggleChip(this)">Drückend</div>
+                        <div class="type-chip" onclick="toggleChip(this)">Stechend</div>
+                        <div class="type-chip" onclick="toggleChip(this)">Pochend</div>
+                        <div class="type-chip" onclick="toggleChip(this)">Übelkeit</div>
+                        <div class="type-chip" onclick="toggleChip(this)">Lichtempfindlich</div>
+                        <div class="type-chip" onclick="toggleChip(this)">Lärmempfindlich</div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- SECTION 2: FAKTOREN & URSACHEN -->
+            <details>
+                <summary>Faktoren & Auslöser</summary>
+                <div class="details-content">
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <div style="flex:1;">
+                            <label>Schlaf (Std)</label>
+                            <div class="sleep-input-group">
+                                <input type="number" id="sleepInput" placeholder="7.5" readonly style="background:#f0f0f0; color:#555;">
+                                <button class="add-nap-btn" onclick="addNap()">+</button>
+                            </div>
+                        </div>
+                        <div style="flex:1;">
+                            <label>Qualität</label>
+                            <select id="sleepQualityInput">
+                                <option value="">-</option>
+                                <option value="Gut">Gut</option>
+                                <option value="Mittel">Mittel</option>
+                                <option value="Schlecht">Schlecht</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label>Stresslevel (1-10): <span id="stressValue">0</span></label>
+                    <input type="range" id="stressInput" min="0" max="10" value="0" oninput="document.getElementById('stressValue').innerText=this.value" style="accent-color:#ff9f43; width:100%; margin-bottom:15px;">
+
+                    <label>Auslöser & Einflüsse</label>
+                    <div class="chip-container" id="triggersContainer">
+                        <div class="type-chip trigger" onclick="toggleWeatherOptions(this)">Wetter/Barometer</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Menstruation</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Alkohol</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Koffein</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Schokolade</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Käse</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Zu wenig Wasser</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Sport/Aktivität</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Bildschirmarbeit</div>
+                    </div>
+
+                    <!-- Hidden Weather Options -->
+                    <div id="weatherOptions" class="weather-options">
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Sturm</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Hitze</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Kälte</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Druckwechsel</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Schwül</div>
+                        <div class="type-chip trigger" onclick="toggleChip(this)">Regen</div>
+                    </div>
+
+                </div>
+            </details>
+
+            <!-- SECTION 3: MEDIKAMENTE -->
+            <details>
+                <summary>Behandlung</summary>
+                <div class="details-content">
+                    <label>Medikament & Dosis</label>
+                    <input type="text" id="medNameInput" placeholder="z.B. Ibuprofen 400mg" style="margin-bottom:10px;">
+                    
+                    <label>Wirkung</label>
+                    <select id="medEffectInput" style="margin-bottom:10px;">
+                        <option value="">-</option>
+                        <option value="Keine">Keine Linderung</option>
+                        <option value="Mittel">Teilweise Linderung</option>
+                        <option value="Gut">Schmerzfrei</option>
+                    </select>
+
+                    <label>Nebenwirkungen</label>
+                    <input type="text" id="medSideEffectInput" placeholder="z.B. Magenweh, Müdigkeit">
+                </div>
+            </details>
+
+            <!-- SECTION 4: NOTIZEN -->
+            <div class="form-group">
+                <label>Notizen / Was hat geholfen?</label>
+                <textarea id="notesInput" placeholder="Dunkles Zimmer, Kühlen, Besonderheiten..." style="height:60px;"></textarea>
+            </div>
+            
+            <div style="height:80px"></div>
+        </div>
+
+        <div style="position:absolute; bottom:0; left:0; width:100%; padding:20px; background:white; border-top:1px solid #eee;">
+            <button id="saveBtn" class="btn-save" onclick="saveEntry()">Speichern</button>
+            <button id="delBtn" class="btn-delete hidden" onclick="deleteEntry()">Löschen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'headache_tracker_v3';
+    let entries = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    let heatmapMode = 'intensity'; // 'intensity' or 'duration'
+    
+    // Migration helper
+    for (let k in entries) {
+        if (!Array.isArray(entries[k])) {
+            let old = entries[k]; old.id = Math.random().toString();
+            entries[k] = [old];
+        }
+    }
+
+    let currentDate = new Date();
+    let selectedDateKey = null;
+    let currentEntryId = null;
+
+    // Stat Date Ranges (Default: last 30 days)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate()-30);
+    const thirtyStr = thirtyDaysAgo.toISOString().split('T')[0];
+
+    // --- NAVIGATION ---
+    function switchTab(viewId, navEl) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-'+viewId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if(navEl) navEl.classList.add('active');
+
+        if(viewId === 'home') renderHome();
+        if(viewId === 'calendar') renderCalendar();
+        if(viewId === 'stats') {
+            if(!document.getElementById('statsStart').value) document.getElementById('statsStart').value = thirtyStr;
+            if(!document.getElementById('statsEnd').value) document.getElementById('statsEnd').value = todayStr;
+            renderStats();
+        }
+    }
+
+    // --- HOME ---
+    function renderHome() {
+        const today = new Date();
+        const dateKey = formatDate(today);
+        document.getElementById('dashDate').innerText = today.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long' });
+
+        // Calculate Streak
+        const dateKeys = Object.keys(entries).sort();
+        let streak = 0;
+        if(dateKeys.length > 0) {
+            let checkDate = new Date();
+            // Check today or yesterday as start
+            let sDateStr = formatDate(checkDate);
+            if(!entries[sDateStr]) {
+                checkDate.setDate(checkDate.getDate() - 1);
+                sDateStr = formatDate(checkDate);
+            }
+            
+            while(entries[sDateStr]) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+                sDateStr = formatDate(checkDate);
+            }
+        }
+        document.getElementById('streakBadge').innerText = `🔥 ${streak} Tage`;
+
+        const dayEntries = entries[dateKey] || [];
+        const statusEl = document.getElementById('dashStatus');
+        const listEl = document.getElementById('dashList');
+
+        if (dayEntries.length === 0) {
+            statusEl.innerText = "Schmerzfrei 🌿";
+            statusEl.style.color = "var(--safe)";
+            listEl.innerHTML = '<div style="text-align:center; color:#b2bec3; padding:20px;">Noch keine Einträge heute.</div>';
+        } else {
+            let maxPain = 0;
+            dayEntries.forEach(e => maxPain = Math.max(maxPain, parseInt(e.intensity||0)));
+            statusEl.innerText = `Max. Intensität: ${maxPain}`;
+            statusEl.style.color = maxPain > 5 ? "var(--danger)" : "var(--mild)";
+
+            listEl.innerHTML = '';
+            dayEntries.sort((a,b) => (a.time||"").localeCompare(b.time||""));
+            dayEntries.forEach(e => {
+                const div = document.createElement('div');
+                div.className = 'today-item';
+                div.innerHTML = `
+                    <div style="flex:1">
+                        <div style="font-weight:bold;">${e.time} Uhr <span style="font-weight:normal; color:#666;">• ${e.duration||0} min</span></div>
+                        <div style="font-size:0.85rem; color:#666;">${getPartsSummary(e)}</div>
+                        ${e.medName ? `<div style="font-size:0.8rem; color:#4a90e2;">💊 ${e.medName}</div>` : ''}
+                    </div>
+                    <div style="font-weight:bold; color:var(--primary); font-size:1.2rem;">${e.intensity}</div>
+                `;
+                div.onclick = () => { openModal(dateKey); showFormView(false, e.id); };
+                listEl.appendChild(div);
+            });
+        }
+    }
+    
+    function openTodayModal() { openModal(formatDate(new Date())); }
+
+    // --- CALENDAR ---
+    function renderCalendar() {
+        const y = currentDate.getFullYear(), m = currentDate.getMonth();
+        document.getElementById('monthDisplay').innerText = new Date(y, m).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+        
+        const firstDay = new Date(y, m, 1).getDay(); 
+        const startOffset = (firstDay === 0 ? 6 : firstDay - 1); 
+        const daysInMonth = new Date(y, m+1, 0).getDate();
+
+        const grid = document.getElementById('calendar');
+        grid.innerHTML = '<div class="day-name">Mo</div><div class="day-name">Di</div><div class="day-name">Mi</div><div class="day-name">Do</div><div class="day-name">Fr</div><div class="day-name">Sa</div><div class="day-name">So</div>';
+        for(let i=0; i<startOffset; i++) grid.innerHTML += '<div></div>';
+
+        const todayKey = formatDate(new Date());
+
+        for(let d=1; d<=daysInMonth; d++) {
+            const dateKey = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const div = document.createElement('div');
+            div.className = 'day';
+            div.innerText = d;
+            if(dateKey === todayKey) div.classList.add('today');
+            
+            const dayE = entries[dateKey];
+            if(dayE && dayE.length > 0) {
+                let totalDur = dayE.reduce((sum, e) => sum + (parseInt(e.duration)||0), 0);
+                div.classList.add(totalDur < 30 ? 'pain-short' : 'pain-long');
+            }
+            if(new Date(y,m,d) > new Date()) div.classList.add('future');
+            else div.onclick = () => openModal(dateKey);
+            grid.appendChild(div);
+        }
+    }
+    function changeMonth(d) { currentDate.setMonth(currentDate.getMonth() + d); renderCalendar(); }
+
+    // --- MODAL & FORM ---
+    function openModal(dateKey) {
+        selectedDateKey = dateKey;
+        const [y, m, d] = dateKey.split('-');
+        document.getElementById('modalDateTitle').innerText = `${d}.${m}.${y}`;
+        
+        if(entries[dateKey] && entries[dateKey].length > 0) showListView();
+        else showFormView(true);
+        document.getElementById('entryModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('entryModal').classList.remove('active');
+        renderHome();
+        if(document.getElementById('view-calendar').classList.contains('active')) renderCalendar();
+    }
+
+    function showListView() {
+        document.getElementById('listContainer').style.display = 'block';
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('backBtn').style.display = 'none';
+        document.getElementById('saveBtn').style.display = 'none';
+        document.getElementById('delBtn').classList.add('hidden');
+
+        const list = document.getElementById('entriesList');
+        list.innerHTML = '';
+        const dayData = entries[selectedDateKey] || [];
+        dayData.sort((a,b) => (a.time||"").localeCompare(b.time||""));
+
+        dayData.forEach(e => {
+            const item = document.createElement('div');
+            item.className = 'today-item';
+            item.innerHTML = `
+                <div style="flex:1">
+                    <strong>${e.time || '--:--'}</strong> (${e.duration||0} min)
+                    <div style="font-size:0.85rem; color:#666;">${getPartsSummary(e)}</div>
+                </div>
+                <div style="font-weight:bold; color:var(--primary);">${e.intensity}</div>
+            `;
+            item.onclick = () => showFormView(false, e.id);
+            list.appendChild(item);
+        });
+    }
+
+    function showFormView(isNew, id=null) {
+        document.getElementById('listContainer').style.display = 'none';
+        document.getElementById('formContainer').style.display = 'block';
+        document.getElementById('backBtn').style.display = (entries[selectedDateKey]?.length > 0) ? 'block' : 'none';
+        document.getElementById('saveBtn').style.display = 'block';
+
+        resetForm();
+
+        // Sleep Logic Check
+        const dayEntries = entries[selectedDateKey] || [];
+        // Check if ANY entry for this day has sleep data > 0
+        const existingSleepEntry = dayEntries.find(e => e.sleepHours > 0);
+        const hasSleepData = !!existingSleepEntry;
+        
+        if(isNew) {
+            currentEntryId = null;
+            const now = new Date();
+            document.getElementById('timeInput').value = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+            document.getElementById('delBtn').classList.add('hidden');
+            
+            // If data exists, prefill from it
+            if(hasSleepData) {
+                document.getElementById('sleepInput').value = existingSleepEntry.sleepHours;
+                document.getElementById('sleepQualityInput').value = existingSleepEntry.sleepQuality;
+            }
+        } else {
+            currentEntryId = id;
+            const entry = entries[selectedDateKey].find(e => e.id === id);
+            if(entry) loadEntry(entry);
+            document.getElementById('delBtn').classList.remove('hidden');
+        }
+
+        // Lock Logic: If data exists, lock it. If not (first entry), unlock it.
+        const sleepInp = document.getElementById('sleepInput');
+        if(hasSleepData) {
+             sleepInp.setAttribute('readonly', 'true');
+             sleepInp.style.backgroundColor = '#f0f0f0';
+        } else {
+             sleepInp.removeAttribute('readonly');
+             sleepInp.style.backgroundColor = '#fff';
+        }
+    }
+
+    function resetForm() {
+        document.querySelectorAll('.brain-part').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+        document.getElementById('selected-parts-text').innerText = 'Kein Bereich';
+        document.getElementById('painSlider').value = 0;
+        document.getElementById('painValue').innerText = '0';
+        document.getElementById('durationInput').value = '';
+        document.getElementById('notesInput').value = '';
+        // New Fields Reset
+        document.getElementById('sleepInput').value = 0;
+        document.getElementById('sleepQualityInput').value = '';
+        document.getElementById('stressInput').value = 0;
+        document.getElementById('stressValue').innerText = '0';
+        document.getElementById('medNameInput').value = '';
+        document.getElementById('medEffectInput').value = '';
+        document.getElementById('medSideEffectInput').value = '';
+        document.getElementById('weatherOptions').classList.remove('visible');
+        
+        document.querySelectorAll('details').forEach(d => d.removeAttribute('open'));
+        document.querySelector('details').setAttribute('open', ''); 
+    }
+
+    function loadEntry(e) {
+        if(e.parts) e.parts.forEach(id => document.getElementById(id)?.classList.add('active'));
+        updateBrainText();
+        document.getElementById('painSlider').value = e.intensity;
+        document.getElementById('painValue').innerText = e.intensity;
+        document.getElementById('durationInput').value = e.duration;
+        document.getElementById('notesInput').value = e.notes;
+        document.getElementById('timeInput').value = e.time;
+        
+        const allChips = document.querySelectorAll('.type-chip');
+        const activeChips = [...(e.types||[]), ...(e.triggers||[])];
+        allChips.forEach(c => {
+            if(activeChips.includes(c.innerText)) c.classList.add('active');
+            if(c.innerText === 'Wetter/Barometer' && activeChips.includes('Wetter/Barometer')) {
+                 document.getElementById('weatherOptions').classList.add('visible');
+            }
+        });
+
+        document.getElementById('sleepInput').value = e.sleepHours || 0;
+        document.getElementById('sleepQualityInput').value = e.sleepQuality || '';
+        document.getElementById('stressInput').value = e.stress || 0;
+        document.getElementById('stressValue').innerText = e.stress || 0;
+        document.getElementById('medNameInput').value = e.medName || '';
+        document.getElementById('medEffectInput').value = e.medEffect || '';
+        document.getElementById('medSideEffectInput').value = e.medSideEffect || '';
+    }
+
+    document.querySelectorAll('.brain-part').forEach(p => p.onclick = function() {
+        this.classList.toggle('active'); updateBrainText();
+    });
+    function updateBrainText() {
+        const active = document.querySelectorAll('.brain-part.active');
+        const txt = active.length ? Array.from(active).map(a=>a.dataset.name).join(', ') : 'Kein Bereich';
+        document.getElementById('selected-parts-text').innerText = txt;
+    }
+    
+    function toggleChip(el) { el.classList.toggle('active'); }
+    
+    function toggleWeatherOptions(el) {
+        toggleChip(el);
+        const opts = document.getElementById('weatherOptions');
+        if(el.classList.contains('active')) opts.classList.add('visible');
+        else {
+            opts.classList.remove('visible');
+            opts.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+        }
+    }
+
+    function addNap() {
+        let val = parseFloat(document.getElementById('sleepInput').value) || 0;
+        let add = prompt("Wie viel Mittagsschlaf (in Minuten)?", "30");
+        if(add) {
+            val += (parseInt(add) / 60);
+            document.getElementById('sleepInput').value = parseFloat(val.toFixed(1));
+        }
+    }
+
+    function getPartsSummary(e) {
+        if(!e.parts || !e.parts.length) return "Keine Lokalisierung";
+        return e.parts.length > 2 ? e.parts.length + " Bereiche" : e.parts.map(id => document.getElementById(id)?.dataset.name).join(', ');
+    }
+
+    function saveEntry() {
+        const duration = document.getElementById('durationInput').value;
+        const parts = Array.from(document.querySelectorAll('.brain-part.active')).map(e=>e.id);
+        
+        if(!duration || duration <= 0) { alert("Bitte gib eine Dauer an!"); return; }
+        if(parts.length === 0) { alert("Bitte wähle mindestens einen Schmerzbereich am Kopf aus!"); return; }
+
+        const types = [];
+        const triggers = [];
+        document.querySelectorAll('.type-chip.active').forEach(c => {
+            if(c.parentElement.id === 'weatherOptions' || c.classList.contains('trigger')) triggers.push(c.innerText);
+            else types.push(c.innerText);
+        });
+
+        const data = {
+            id: currentEntryId || Math.random().toString(),
+            parts: parts,
+            intensity: document.getElementById('painSlider').value,
+            duration: duration,
+            time: document.getElementById('timeInput').value,
+            notes: document.getElementById('notesInput').value,
+            types: types,
+            triggers: triggers,
+            sleepHours: document.getElementById('sleepInput').value,
+            sleepQuality: document.getElementById('sleepQualityInput').value,
+            stress: document.getElementById('stressInput').value,
+            medName: document.getElementById('medNameInput').value,
+            medEffect: document.getElementById('medEffectInput').value,
+            medSideEffect: document.getElementById('medSideEffectInput').value
+        };
+
+        if(!entries[selectedDateKey]) entries[selectedDateKey] = [];
+        
+        if(currentEntryId) {
+            const idx = entries[selectedDateKey].findIndex(e => e.id === currentEntryId);
+            if(idx !== -1) entries[selectedDateKey][idx] = data;
+        } else {
+            entries[selectedDateKey].push(data);
+        }
+
+        // Sync Sleep
+        entries[selectedDateKey].forEach(e => {
+            e.sleepHours = data.sleepHours;
+            e.sleepQuality = data.sleepQuality;
+        });
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        if(entries[selectedDateKey].length > 1) showListView(); else closeModal();
+    }
+
+    function deleteEntry() {
+        if(confirm("Eintrag löschen?")) {
+            entries[selectedDateKey] = entries[selectedDateKey].filter(e => e.id !== currentEntryId);
+            if(entries[selectedDateKey].length === 0) delete entries[selectedDateKey];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+            if(entries[selectedDateKey]) showListView(); else closeModal();
+        }
+    }
+
+    function formatDate(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+    // --- STATS & HEATMAP ---
+    function setHeatmapMode(mode) {
+        heatmapMode = mode;
+        document.getElementById('btn-hm-int').classList.toggle('active', mode === 'intensity');
+        document.getElementById('btn-hm-dur').classList.toggle('active', mode === 'duration');
+        renderStats();
+    }
+
+    function renderStats() {
+        const start = new Date(document.getElementById('statsStart').value);
+        const end = new Date(document.getElementById('statsEnd').value);
+        end.setHours(23,59,59); 
+
+        let totalDays = 0;
+        let painSum = 0;
+        let painCount = 0;
+        let partsFreq = {};
+        
+        let tableData = [];
+
+        Object.keys(entries).forEach(dateStr => {
+            const d = new Date(dateStr);
+            if(d >= start && d <= end) {
+                const dayE = entries[dateStr];
+                if(dayE.length > 0) totalDays++;
+                
+                dayE.forEach(e => {
+                    painSum += parseInt(e.intensity);
+                    painCount++;
+                    
+                    e.parts.forEach(pid => {
+                        // Weighting Logic
+                        let weight = 1;
+                        if(heatmapMode === 'intensity') weight = parseInt(e.intensity) || 1;
+                        else if(heatmapMode === 'duration') weight = parseInt(e.duration) || 10;
+                        
+                        partsFreq[pid] = (partsFreq[pid] || 0) + weight;
+                    });
+
+                    tableData.push({
+                        date: dateStr,
+                        time: e.time,
+                        duration: parseInt(e.duration),
+                        intensity: e.intensity,
+                        locations: getPartsSummary(e),
+                        types: e.types.join(', '),
+                        meds: e.medName
+                    });
+                });
+            }
+        });
+
+        document.getElementById('stat-days').innerText = totalDays;
+        document.getElementById('stat-pain').innerText = painCount ? (painSum / painCount).toFixed(1) : 0;
+
+        const maxHits = Math.max(...Object.values(partsFreq), 1);
+        document.querySelectorAll('#brain-stats .brain-part').forEach(p => {
+            const id = p.id.replace('stat-', '');
+            const hits = partsFreq[id] || 0;
+            const intensity = hits / maxHits;
+            
+            let color = '#dfe6e9'; 
+            if (hits > 0) {
+                if(intensity < 0.25) color = 'var(--heat-low)';
+                else if(intensity < 0.5) color = 'var(--heat-med)';
+                else if(intensity < 0.75) color = 'var(--heat-high)';
+                else color = 'var(--heat-ext)';
+            }
+            p.style.fill = color;
+        });
+
+        let tableHTML = `
+            <table class="stats-table">
+                <tr>
+                    <th>Datum</th>
+                    <th>Dauer</th>
+                    <th>Intensität</th>
+                    <th>Ort & Art</th>
+                </tr>
+        `;
+        tableData.sort((a,b) => new Date(b.date) - new Date(a.date));
+        
+        if(tableData.length === 0) {
+            tableHTML += `<tr><td colspan="4" style="text-align:center; padding:10px;">Keine Daten im Zeitraum</td></tr>`;
+        } else {
+            tableData.forEach(d => {
+                const [y,m,day] = d.date.split('-');
+                tableHTML += `
+                    <tr>
+                        <td>${day}.${m}.<br><span style="font-size:0.8em;color:#888">${d.time}</span></td>
+                        <td>${d.duration}m</td>
+                        <td><strong style="color:${d.intensity>5?'var(--danger)':'var(--mild)'}">${d.intensity}</strong></td>
+                        <td>${d.locations}<br><span style="font-size:0.8em;color:#666">${d.types}</span></td>
+                    </tr>
+                `;
+            });
+        }
+        tableHTML += `</table>`;
+        document.getElementById('statsTableContainer').innerHTML = tableHTML;
+    }
+
+    function printReport() { window.print(); }
+
+    function exportData() {
+        const b = new Blob([JSON.stringify(entries, null, 2)], {type:'text/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+        a.download = 'kopfschmerz_backup.json'; a.click();
+    }
+    function importData(inp) {
+        const r = new FileReader();
+        r.onload = e => {
+            if(confirm("Daten überschreiben?")) {
+                entries = JSON.parse(e.target.result);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+                location.reload();
+            }
+        };
+        r.readAsText(inp.files[0]);
+    }
+
+    renderHome();
+</script>
+</body>
+</html>
