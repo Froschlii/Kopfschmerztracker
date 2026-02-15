@@ -16,19 +16,21 @@
     <style>
         :root {
             /* Cozy Nature Palette */
-            --primary: #4A6C6F;
-            --bg: #F5F1E6;
-            --surface: #ffffff;
-            --text: #3E3C38;
+            --primary: #4A6C6F;    /* Deep Forest Lake Teal */
+            --bg: #F5F1E6;         /* Warm Oatmeal/Paper Beige */
+            --surface: #ffffff;    /* White */
+            --text: #3E3C38;       /* Warm Dark Gray/Brown */
             
-            --danger: #C05746;
-            --mild: #7EA0A3;
-            --safe: #8FA876;
+            /* Status Colors */
+            --danger: #C05746;     
+            --mild: #7EA0A3;       
+            --safe: #8FA876;       
             
-            --heat-low: #8FA876;
-            --heat-med: #E6B867;
-            --heat-high: #D68C45;
-            --heat-ext: #C05746;
+            /* Heatmap Colors */
+            --heat-low: #8FA876;   
+            --heat-med: #E6B867;   
+            --heat-high: #D68C45;  
+            --heat-ext: #C05746;   
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -60,13 +62,14 @@
             position: relative;
         }
 
-        /* Header */
+        /* Header - FIXED LAYOUT */
         header {
             background: var(--primary);
             color: white;
             padding: 15px 20px;
             padding-top: max(15px, env(safe-area-inset-top));
             display: flex;
+            flex-direction: row; /* Force row direction */
             justify-content: space-between;
             align-items: center;
             font-size: 1.2rem;
@@ -74,6 +77,13 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 10;
             flex-shrink: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            flex-direction: row; /* Force items side-by-side */
+            align-items: center;
+            gap: 15px; /* Space between buttons */
         }
 
         .header-btn {
@@ -89,6 +99,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         /* Views */
@@ -112,15 +123,17 @@
             text-align: center;
             position: relative;
             border: 1px solid rgba(255,255,255,0.6);
+            overflow: visible; 
         }
         .date-display { font-size: 1.1rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
         .status-display { font-size: 1.8rem; font-weight: bold; margin: 10px 0; color: var(--text); }
         
         .streak-badge {
-            position: absolute; top: 15px; right: 15px;
-            background: #fff8f0; color: var(--heat-high); padding: 5px 12px;
+            position: absolute; top: -12px; right: -8px;
+            background: #fff8f0; color: var(--heat-high); padding: 6px 14px;
             border-radius: 20px; font-weight: bold; font-size: 0.85rem;
             display: flex; align-items: center; gap: 6px; border: 1px solid #ffe0cc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 5;
         }
 
         .quick-add-btn {
@@ -162,13 +175,11 @@
         .analysis-val { font-size: 1.4rem; font-weight: bold; color: var(--primary); display: block; }
         .analysis-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* Bar Chart (Severity) */
         .bar-chart { display: flex; align-items: flex-end; height: 100px; gap: 10px; margin-top: 15px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
         .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
         .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s; min-height: 2px; }
         .bar-label { font-size: 0.7rem; color: #888; margin-top: 5px; }
 
-        /* Time of Day Chart */
         .time-chart { display: flex; justify-content: space-between; margin-top: 10px; }
         .time-segment { text-align: center; flex: 1; }
         .time-icon { font-size: 1.2rem; display: block; margin-bottom: 4px; }
@@ -283,7 +294,7 @@
         .hidden { display: none !important; }
         .required-marker { color: var(--danger); margin-left: 3px; }
 
-        /* PRINT STYLES - Optimized for Doctors */
+        /* PRINT STYLES */
         #print-area { display: none; }
         
         @media print {
@@ -309,7 +320,7 @@
 </head>
 <body>
 
-<!-- PRINT AREA (For Doctor) -->
+<!-- PRINT AREA -->
 <div id="print-area">
     <!-- Content injected via JS -->
 </div>
@@ -438,7 +449,7 @@
     </div>
 </div>
 
-<!-- MODAL (Code unchanged for functionality, style included above) -->
+<!-- MODAL -->
 <div class="modal" id="entryModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -632,16 +643,16 @@
         document.getElementById('streakBadge').innerText = `🔥 ${streak} Tage`;
 
         const dayEntries = entries[dateKey] || [];
-        const statusEl = document.getElementById('dashStatus');
         const listEl = document.getElementById('dashList');
 
         if (dayEntries.length === 0) {
-            statusEl.innerText = "Schmerzfrei 🌿";
-            statusEl.style.color = "var(--safe)";
+            document.getElementById('dashStatus').innerText = "Schmerzfrei 🌿";
+            document.getElementById('dashStatus').style.color = "var(--safe)";
             listEl.innerHTML = '<div style="text-align:center; color:#b2bec3; padding:20px;">Noch keine Einträge heute.</div>';
         } else {
             let maxPain = 0;
             dayEntries.forEach(e => maxPain = Math.max(maxPain, parseInt(e.intensity||0)));
+            const statusEl = document.getElementById('dashStatus');
             statusEl.innerText = `Max. Intensität: ${maxPain}`;
             statusEl.style.color = maxPain > 5 ? "var(--danger)" : "var(--mild)";
 
@@ -729,7 +740,6 @@
                 const dayE = entries[dateStr];
                 if(dayE.length > 0) {
                     totalDays++;
-                    // Check meds for this day
                     if(dayE.some(e => e.medName && e.medName.length > 0)) medDays++;
                 }
                 
@@ -738,19 +748,16 @@
                     painSum += pain;
                     painCount++;
                     
-                    // Severity
                     if(pain <= 3) severityCounts.mild++;
                     else if(pain <= 7) severityCounts.mod++;
                     else severityCounts.severe++;
 
-                    // Time
                     const hour = parseInt(e.time.split(':')[0]);
                     if(hour >= 6 && hour < 12) timeCounts.morn++;
                     else if(hour >= 12 && hour < 18) timeCounts.day++;
                     else if(hour >= 18 && hour < 22) timeCounts.eve++;
                     else timeCounts.night++;
 
-                    // Heatmap
                     e.parts.forEach(pid => {
                         let weight = 1;
                         if(heatmapMode === 'intensity') weight = pain || 1;
@@ -768,18 +775,17 @@
                         meds: e.medName,
                         effect: e.medEffect,
                         triggers: [...(e.triggers||[]), ...(e.stress > 0 ? [`Stress ${e.stress}`] : [])].join(', '),
-                        notes: e.notes
+                        notes: e.notes,
+                        sleep: e.sleepHours
                     });
                 });
             }
         });
 
-        // Update Summary Cards
         document.getElementById('stat-days').innerText = totalDays;
         document.getElementById('stat-meds').innerText = medDays;
         document.getElementById('stat-meds').style.color = medDays > 10 ? 'var(--danger)' : 'var(--primary)';
 
-        // Draw Severity Chart
         const maxSev = Math.max(severityCounts.mild, severityCounts.mod, severityCounts.severe, 1);
         document.getElementById('severityChart').innerHTML = `
             <div class="bar-col"><div class="bar" style="height:${(severityCounts.mild/maxSev)*100}%; background:var(--safe)"></div><span class="bar-label">Leicht</span></div>
@@ -787,7 +793,6 @@
             <div class="bar-col"><div class="bar" style="height:${(severityCounts.severe/maxSev)*100}%; background:var(--danger)"></div><span class="bar-label">Stark</span></div>
         `;
 
-        // Draw Time Chart
         document.getElementById('timeChart').innerHTML = `
             <div class="time-segment"><span class="time-icon">🌅</span><span class="time-val">${timeCounts.morn}</span></div>
             <div class="time-segment"><span class="time-icon">☀️</span><span class="time-val">${timeCounts.day}</span></div>
@@ -795,7 +800,6 @@
             <div class="time-segment"><span class="time-icon">🌙</span><span class="time-val">${timeCounts.night}</span></div>
         `;
 
-        // Heatmap
         const maxHits = Math.max(...Object.values(partsFreq), 1);
         document.querySelectorAll('#brain-stats .brain-part').forEach(p => {
             const id = p.id.replace('stat-', '');
@@ -811,7 +815,6 @@
             p.style.fill = color;
         });
 
-        // Screen Table
         let tableHTML = `<table class="stats-table-screen"><tr><th>Datum</th><th>Dauer</th><th>Int.</th><th>Details</th></tr>`;
         tableData.sort((a,b) => new Date(b.date) - new Date(a.date));
         if(tableData.length === 0) tableHTML += `<tr><td colspan="4" style="text-align:center; padding:10px;">Keine Daten</td></tr>`;
@@ -824,14 +827,13 @@
         tableHTML += `</table>`;
         document.getElementById('statsTableContainer').innerHTML = tableHTML;
 
-        // Cache Data for Print
         printDataCache = {
             start, end, totalDays, medDays, painCount, painSum, tableData
         };
     }
 
     function printReport() { 
-        renderStats(); // Ensure up to date
+        renderStats();
         const d = printDataCache;
         const avgPain = d.painCount ? (d.painSum / d.painCount).toFixed(1) : 0;
         
@@ -868,6 +870,10 @@
         else {
             d.tableData.forEach(row => {
                 const [y,m,day] = row.date.split('-');
+                let factors = [];
+                if(row.sleep) factors.push(`Schlaf: ${row.sleep}h`);
+                if(row.triggers) factors.push(row.triggers);
+                
                 html += `
                     <tr>
                         <td>${day}.${m}.${y}<br>${row.time}</td>
@@ -875,7 +881,7 @@
                         <td>${row.intensity}</td>
                         <td>${row.locations}<br><i>${row.types}</i></td>
                         <td>${row.meds || '-'}<br>${row.effect ? '<i>('+row.effect+')</i>' : ''}</td>
-                        <td>${row.triggers}</td>
+                        <td>${factors.join(', ')}</td>
                         <td>${row.notes || '-'}</td>
                     </tr>
                 `;
@@ -884,10 +890,9 @@
         html += `</tbody></table>`;
         
         document.getElementById('print-area').innerHTML = html;
-        window.print(); 
+        setTimeout(() => window.print(), 500); 
     }
 
-    // Modal & Standard Logic (Same as before)
     function openModal(dateKey) {
         selectedDateKey = dateKey;
         const [y, m, d] = dateKey.split('-');
