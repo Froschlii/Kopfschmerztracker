@@ -6,11 +6,13 @@
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Theme Color matches the forest teal header -->
     <meta name="theme-color" content="#4A6C6F">
     <meta name="application-name" content="Kopfschmerz Tracker">
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234A6C6F%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%234A6C6F%22/><text y=%2275%22 x=%2250%22 font-size=%2260%22 text-anchor=%22middle%22>🧠</text></svg>">
+    <!-- App Icons (Data URI for reliability without external files) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234A6C6F%22 rx=%2220%22/><text y=%2270%22 x=%2250%22 font-size=%2250%22 text-anchor=%22middle%22>🧠</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%234A6C6F%22 rx=%2220%22/><text y=%2270%22 x=%2250%22 font-size=%2250%22 text-anchor=%22middle%22>🧠</text></svg>">
 
     <title>Kopfschmerz Tracker</title>
     <style>
@@ -22,13 +24,14 @@
             --text: #3E3C38;       /* Warm Dark Gray/Brown */
             
             /* Status Colors */
-            --danger: #C05746;     
-            --mild: #7EA0A3;       
-            --safe: #8FA876;       
+            --danger: #C05746;     /* Rust Red (Long pain) */
+            --mild: #F4D03F;       /* Warm Yellow (Short pain < 30m) - CHANGED from blueish */
+            --safe: #8FA876;       /* Moss Green (No pain / Good status) */
+            --gray: #DCD6CC;       /* Warm Gray */
             
             /* Heatmap Colors */
             --heat-low: #8FA876;   
-            --heat-med: #E6B867;   
+            --heat-med: #F4D03F;   
             --heat-high: #D68C45;  
             --heat-ext: #C05746;   
         }
@@ -36,7 +39,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
@@ -69,7 +72,7 @@
             padding: 15px 20px;
             padding-top: max(15px, env(safe-area-inset-top));
             display: flex;
-            flex-direction: row; /* Force row direction */
+            flex-direction: row; 
             justify-content: space-between;
             align-items: center;
             font-size: 1.2rem;
@@ -81,9 +84,9 @@
 
         .header-controls {
             display: flex;
-            flex-direction: row; /* Force items side-by-side */
+            flex-direction: row; 
             align-items: center;
-            gap: 15px; /* Space between buttons */
+            gap: 15px; 
         }
 
         .header-btn {
@@ -99,7 +102,7 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0; 
         }
 
         /* Views */
@@ -163,7 +166,9 @@
             color: var(--text); cursor: pointer;
         }
         .day.today { border: 2px solid var(--primary); font-weight: bold; }
-        .day.pain-short { background: var(--mild); color: white; }
+        
+        /* Updated Colors for Calendar */
+        .day.pain-short { background: var(--mild); color: #5a4a1b; } /* Yellow background, darker text */
         .day.pain-long { background: var(--danger); color: white; }
         .day.future { opacity: 0.4; background: rgba(0,0,0,0.05); pointer-events: none; }
 
@@ -253,10 +258,31 @@
         label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--text); font-size: 0.95rem; }
         .input-row { display: flex; gap: 12px; margin-bottom: 20px; }
         .input-col { flex: 1; }
-        input, textarea, select {
-            width: 100%; padding: 14px; border: 1px solid #ddd;
+        
+        /* IMPROVED INPUTS AND SLIDERS */
+        input[type="text"], input[type="number"], input[type="time"], input[type="date"], textarea, select {
+            width: 100%; padding: 14px; border: 1px solid #dcd6cc;
             border-radius: 12px; font-size: 1rem; background: var(--surface); color: var(--text);
+            -webkit-appearance: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(74, 108, 111, 0.1);
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent; margin: 10px 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
+            height: 24px; width: 24px; border-radius: 50%;
+            background: var(--primary); cursor: pointer;
+            margin-top: -10px; /* center thumb */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; cursor: pointer;
+            background: #dcd6cc; border-radius: 3px;
         }
         
         details { background: var(--surface); border-radius: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); overflow: hidden; }
@@ -294,7 +320,7 @@
         .hidden { display: none !important; }
         .required-marker { color: var(--danger); margin-left: 3px; }
 
-        /* PRINT STYLES */
+        /* PRINT STYLES - Optimized for Doctors */
         #print-area { display: none; }
         
         @media print {
@@ -320,7 +346,7 @@
 </head>
 <body>
 
-<!-- PRINT AREA -->
+<!-- PRINT AREA (For Doctor) -->
 <div id="print-area">
     <!-- Content injected via JS -->
 </div>
@@ -449,7 +475,7 @@
     </div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL (Code unchanged for functionality, style included above) -->
 <div class="modal" id="entryModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -643,16 +669,16 @@
         document.getElementById('streakBadge').innerText = `🔥 ${streak} Tage`;
 
         const dayEntries = entries[dateKey] || [];
+        const statusEl = document.getElementById('dashStatus');
         const listEl = document.getElementById('dashList');
 
         if (dayEntries.length === 0) {
-            document.getElementById('dashStatus').innerText = "Schmerzfrei 🌿";
-            document.getElementById('dashStatus').style.color = "var(--safe)";
+            statusEl.innerText = "Schmerzfrei 🌿";
+            statusEl.style.color = "var(--safe)";
             listEl.innerHTML = '<div style="text-align:center; color:#b2bec3; padding:20px;">Noch keine Einträge heute.</div>';
         } else {
             let maxPain = 0;
             dayEntries.forEach(e => maxPain = Math.max(maxPain, parseInt(e.intensity||0)));
-            const statusEl = document.getElementById('dashStatus');
             statusEl.innerText = `Max. Intensität: ${maxPain}`;
             statusEl.style.color = maxPain > 5 ? "var(--danger)" : "var(--mild)";
 
@@ -701,7 +727,9 @@
             const dayE = entries[dateKey];
             if(dayE && dayE.length > 0) {
                 let totalDur = dayE.reduce((sum, e) => sum + (parseInt(e.duration)||0), 0);
-                div.classList.add(totalDur < 30 ? 'pain-short' : 'pain-long');
+                // Yellow if > 0 and < 30, Red if >= 30
+                if(totalDur < 30) div.classList.add('pain-short');
+                else div.classList.add('pain-long');
             }
             if(new Date(y,m,d) > new Date()) div.classList.add('future');
             else div.onclick = () => openModal(dateKey);
